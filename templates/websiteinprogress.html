@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<title>Plant Irrigation Super System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js'></script><!-- jquery -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script><!-- plotly? -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> <!-- chart -->
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif;}
+body, html {
+  height: 100%;
+  color: #777;
+  line-height: 1.8;
+}
+
+/* Create a Parallax Effect */
+.bgimg-1, .bgimg-2, .bgimg-3 {
+  background-attachment: fixed;
+  background-position: 50% 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* First image (Watering. Full height) */
+.bgimg-1 {
+  background-image: url("{{ url_for('static', filename='wat.jpg')}}");
+  min-height: 100%;
+}
+/* Second image (Portfolio) */
+.bgimg-2 {
+  background-image: url("{{ url_for('static', filename='lev.jpg')}}");
+  min-height: 400px;
+}
+
+.w3-wide {letter-spacing: 10px;}
+.w3-hover-opacity {cursor: pointer;}
+
+/* Turn off parallax scrolling for tablets and phones */
+@media only screen and (max-device-width: 1600px) {
+  .bgimg-1, .bgimg-2, .bgimg-3 {
+    background-attachment: scroll;
+    min-height: 1000px;
+  }
+}
+</style>
+<body>
+
+<!-- First Parallax Image with Logo Text -->
+<div class="bgimg-1 w3-display-container w3-opacity-min" id="home">
+  <div class="w3-display-middle" style="white-space:nowrap;">
+    <span class="w3-center w3-padding-large w3-black w3-xxlarge w3-animate-opacity w3-text-light-grey">PLANT IRRIGATION SUPER SYSTEM </span>
+  </div>
+</div>
+
+<!-- Container (About Section) -->
+<div class="w3-content w3-container w3-padding-64" id="about">
+  <h3 class="w3-center w3-text-grey w3-xxlarge">MOISTNESS</h3>
+   
+      <canvas id="speedChart" width="300" height="100"></canvas>
+<script>
+//JSONDATA
+var moistURL = 'https://api.particle.io/v1/devices/350025000b47363339343638/moisturePercentage?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4';
+var globalmoist = {'percent' : null } ;
+getmoisture();
+setTimeout(function(){
+//do what you need here
+}, 3000);
+setInterval(getmoisture,3000)
+function getmoisture(){
+  $.getJSON(moistURL, function(data) {
+    console.log(data);
+    var MOISTURE = data.result; 
+    globalmoist.percent = MOISTURE;
+    console.log(MOISTURE);
+    
+  });
+}
+var speedCanvas = document.getElementById("speedChart");
+
+Chart.defaults.global.defaultFontFamily = "Lato";
+Chart.defaults.global.defaultFontSize = 18;
+var cm = globalmoist.percent;
+console.log('Current Value:');
+console.log(cm);
+
+
+var speedData = {
+  labels: [-5, -4, -3, -2, -1, 0],
+  datasets: [{
+    label: "Moisture Percentage",
+    fill: false,
+    data: [cm, cm, cm, cm, cm, cm, cm, cm, cm],
+    lineTension: 0.5,
+    backgroundColor: 'transparent',
+    //backgroundColor:'rgba(0,0,255,0.5)',
+    borderColor: 'blue',
+    borderWidth: 3,
+   
+    usePointStyle: false,
+    pointBorderColor: 'blue',
+    pointBackgroundColor: 'blue',
+    pointRadius: 3,
+    pointHoverRadius: 10,
+    pointHitRadius: 30,
+    pointBorderWidth: 2,
+    pointStyle: 'circle'
+  }]
+};
+
+var chartOptions = {
+  legend: {
+    display: true,
+    position: 'top',
+    labels: {
+      boxWidth: 30,
+      fontColor: 'black'
+    }
+  },
+  scales: {
+    yAxes: [{
+      display: true,
+      gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            },
+      ticks: {
+        suggestedMin: cm,    // minimum will be 0, unless there is a lower value.
+        // OR //
+        suggestedMax: cm ,
+        beginAtZero: false   // minimum value will be 0.
+      }
+    }],
+    xAxes: [{
+      display: true,
+      gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            },
+      ticks: {
+        suggestedMin: 5,    // minimum will be 0, unless there is a lower value.
+        min: -5,
+        
+        beginAtZero: false   // minimum value will be 0.
+        
+      }
+    }]
+  },
+  
+  title: {
+    display:false,
+    fontColor: 'black',
+    text: "Moistness",
+    position: 'top'
+  }
+};
+var cnt = 0;
+setInterval(adddata,1000)
+function adddata(){
+  var newdata = Math.floor(Math.random()*(75-65)+65);
+  lineChart.data.datasets[0].data.shift();
+  lineChart.data.datasets[0].data.push(globalmoist.percent);
+  lineChart.update();
+  cnt++;
+}
+
+
+var lineChart = new Chart(speedCanvas, {
+  type: 'line',
+  data: speedData,
+  options: chartOptions
+});
+</script>
+  <p class="w3-center" ><em>A plant needs to be moist</em></p>
+  <p class="w3-center">this is where a graph would go</p>
+</div>  
+   
+
+  
+<div class="w3-row w3-center w3-dark-grey w3-padding-64">
+
+  <h3 class="w3-center w3-text-light-grey w3-xxlarge"> HOTNESS</h3>
+  <canvas id="speedChart3" width="500" height="100"></canvas>
+  <!-- <script src="/static/chartjstest3.js"></script> -->
+  <p class="w3-center"><em>A plant needs to be hot</em></p>
+  
+  <p class="w3-center">this is where a graph would go</p>
+  
+</div>
+
+<!-- Second Parallax Image with Portfolio Text -->
+<div class="bgimg-2 w3-display-container w3-opacity-min">
+  <div class="w3-display-middle">
+    <span class="w3-xxlarge w3-text-white w3-wide">NOT SURE ABOUT THIS ONE YET</span>
+    <span class="w3-large w3-text-white "><br /> maybe we'll put a graph here? like humidity over time, or brightness, or hours on, or? </span>
+  </div>
+</div>
+
+</body>
+</html>
