@@ -59,19 +59,18 @@ body, html {
 
 <!-- Container (About Section) -->
 <div class="w3-content w3-container w3-padding-64" id="about">
-  <h3 class="w3-center w3-text-grey w3-xxlarge">MOISTNESS</h3>
+  <h3 class="w3-center w3-text-grey w3-xxlarge">Real Time</h3>
    
       <canvas id="speedChart" width="300" height="100"></canvas>
-        <!-- <script src="{{ url_for('static', filename='moistrealtime.js')}}"></script> -->
-  <p class="w3-center" ><em>A plant needs to be moist</em></p>
-  <p class="w3-center">this is where a graph would go</p>
+        <script src="{{ url_for('static', filename='moistrealtime.js')}}"></script>
+  <p class="w3-center" ><em>Real time data for your plant</em></p>
 </div>  
    
 
   
 <div class="w3-row w3-center w3-dark-grey w3-padding-64">
 
-  <h3 class="w3-center w3-text-light-grey w3-xxlarge"> HOTNESS</h3>
+  <h3 class="w3-center w3-text-black w3-xxlarge"> HOTNESS</h3>
   <canvas id="speedChart3" width="500" height="100"></canvas>
   <p class="w3-center"><em>A plant needs to be hot</em></p>
   
