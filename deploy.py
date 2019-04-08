@@ -33,13 +33,14 @@ ytemperature = Plant.query.with_entities(Plant.temperature).all()
 ymoisture = Plant.query.with_entities(Plant.moisture).all()
 yhumidity = Plant.query.with_entities(Plant.humidity).all()
 idvalues = Plant.query.with_entities(Plant.id).all()
-reallyxvalues=[]
+reallyxvalues=['']
 reallyidvalues=[]
 reallytemperature=[]
 reallyhumidity = []
 reallymoisture = []
-for i in range(1,(len(reallyxvalues))):
-	reallyxvalues.append(reallyxvalues[i][0])
+reallytimes = []
+for i in range(10,(len(xvalues))):
+	reallyxvalues.append(xvalues[i][0])
 for i in range(1,(len(ytemperature))):
 	reallytemperature.append(ytemperature[i][0])
 for i in range(1,(len(yhumidity))):
@@ -48,21 +49,31 @@ for i in range(1,(len(ymoisture))):
 	reallymoisture.append(ymoisture[i][0])
 for i in range(1,(len(idvalues))):
 	reallyidvalues.append(idvalues[i][0])
+class values():
+	globalmoist = reallymoisture[-1]
+	globalhumid = reallyhumidity[-1]
+	globaltemp = reallytemperature[-1]
+v = values()
 def record_loop(loop_on):
-	while True:
-		if loop_on.value == True:
-			print("loop running")
-			globalmoist = getjson(moistURL)
-			time.sleep(1)
-			globalhumid = getjson(humidURL)
-			time.sleep(1)
-			globaltemp = getjson(tempURL)
-			time.sleep(1)
-			newReading = Plant(moisture = globalmoist, temperature = globaltemp, humidity = globalhumid)
-			db.session.add(newReading)
-			db.session.commit()
-			time.sleep(1)
-allvalues= {'idvalues':reallyidvalues, 'xvalues':reallyxvalues,'ytemperature':reallytemperature,'ymoisture':reallymoisture,'yhumidity':reallyhumidity, 'currenttemperature':reallytemperature[-1], 'currenthumidity':reallyhumidity[-1],'currentmoisture':reallymoisture[-1]}
+	try:
+		while True:
+			if loop_on.value == True:
+				print("loop running")
+				v.globalmoist = getjson(moistURL)
+				time.sleep(3)
+				v.globalhumid = getjson(humidURL)
+				time.sleep(3)
+				v.globaltemp = getjson(tempURL)
+				time.sleep(3)
+				newReading = Plant(moisture = v.globalmoist, temperature = v.globaltemp, humidity = v.globalhumid)
+				db.session.add(newReading)
+				Plant.query.filter(Plant.humidity >= 100).delete()
+				db.session.commit()
+				time.sleep(1)
+	except KeyError:
+		print('Box disconnected!')
+
+allvalues= {'idvalues':reallyidvalues, 'xvalues':reallyxvalues,'ytemperature':reallytemperature,'ymoisture':reallymoisture,'yhumidity':reallyhumidity, 'currenttemperature':v.globaltemp, 'currenthumidity':v.globalhumid,'currentmoisture':v.globalmoist}
 
 @app.route('/')
 def index():

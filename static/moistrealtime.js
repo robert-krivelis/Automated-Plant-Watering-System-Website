@@ -13,8 +13,6 @@ function getjson(url, value){
     (value).percent = data.result;
     console.log(value)
     console.log(data.result);
-    console.log(count.count);
-    count += 1;
   });
 }
 

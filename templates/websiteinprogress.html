@@ -178,11 +178,11 @@ body, html {
       setInterval(adddata,1000)
       function adddata(){
         lineChart.data.datasets[0].data.shift();
-        lineChart.data.datasets[0].data.push(globalmoist);
+        lineChart.data.datasets[0].data.push({{allvalues.currentmoisture | tojson}});
         lineChart.data.datasets[1].data.shift();
-        lineChart.data.datasets[1].data.push(globaltemp);
+        lineChart.data.datasets[1].data.push({{allvalues.currenttemperature | tojson}});
         lineChart.data.datasets[2].data.shift();
-        lineChart.data.datasets[2].data.push(globalhumid);
+        lineChart.data.datasets[2].data.push({{allvalues.currenthumidity | tojson}});
         lineChart.update();
       }
 
@@ -197,11 +197,11 @@ body, html {
    
 
 
-<div class="w3-content w3-row w3-center w3-dark-grey w3-padding-64" style="position:relative">
+<div class="w3-content w3-center w3-blue-grey w3-padding-64" style="position:relative">
   <!-- <div class="behind w3-row w3-center w3-dark-grey w3-padding-64" style="{z-index:-1;position:absolute;bottom:0;height:800px;}"></div>
  --><!-- <div id="viewer"></div> -->
   <h3 class="w3-center w3-text-white w3-xxlarge"> Data: Long-Term</h3>
-  <canvas id="historyChart" width="1000px" height="300px"></canvas>
+  <canvas id="historyChart" width="800px" height="300px"></canvas>
     <script type="text/javascript">
     var historyCanvas = document.getElementById("historyChart");
     // var devicewidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
@@ -210,12 +210,13 @@ body, html {
     Chart.defaults.global.defaultFontSize = 18;
 
     var Data2 = {
-      labels: {{allvalues.idvalues | tojson}},//{{allvalues.xvalues | tojson }},
+      labels: {{allvalues.xvalues | tojson}},//{{allvalues.xvalues | tojson }},
       datasets: [{
         label: "Moisture %",
         fill: false,
         data: {{allvalues.ymoisture | tojson }},
         lineTension: 0.5,
+
         backgroundColor: 'transparent',
         pointBorderColor: 'black',
         pointHoverRadius: 10,
@@ -225,7 +226,7 @@ body, html {
         pointBorderWidth: 1,
         //backgroundColor:'rgba(0,0,255,0.5)',
         borderColor: 'green',
-        borderWidth: 3,
+        borderWidth: 0,
       },
       {
         label: "Temperature(C)", 
@@ -235,7 +236,7 @@ body, html {
         backgroundColor: 'transparent',
         //backgroundColor:'rgba(0,0,255,0.5)',
         borderColor: 'red',
-        borderWidth: 3,
+        borderWidth: 0,
         usePointStyle: false,
         pointBorderColor: 'black',
         pointBackgroundColor: 'red',
@@ -253,7 +254,7 @@ body, html {
         backgroundColor: 'transparent',
         //backgroundColor:'rgba(0,0,255,0.5)',
         borderColor: 'blue',
-        borderWidth: 3,
+        borderWidth: 0,
        
         usePointStyle: false,
         pointBorderColor: 'black',
@@ -269,6 +270,7 @@ body, html {
     var chartOptions2 = {
       legend: {
         display: true,
+        fillStyle: 'green',
         fontColor: 'white',
         position: 'top',
         labels: {
@@ -287,7 +289,8 @@ body, html {
                     fontColor: "white",
                     fontSize: 18,
                     stepSize: 20,
-                    beginAtZero: true
+                    beginAtZero: true, //if missing bracket, check commas
+                    maxTicksLimit: 10
                 }
         }],
         xAxes: [{
@@ -297,11 +300,13 @@ body, html {
                     stepSize: 15,
                     beginAtZero: true,
                     autoSkip: true,
-                    maxTicksLimit: 50
+                    maxTicksLimit: 50,
+                    max: 100
+
                   },
        gridLines: {
                     color: "transparent",
-                }, 
+                },
               }]
       },
       
@@ -325,20 +330,27 @@ body, html {
 <!-- Second Parallax Image with Portfolio Text -->
 <div class="bgimg-2 w3-display-container w3-opacity-min">
   <div class="w3-display-middle">
-    <span class="w3-xxlarge w3-text-white w3-wide">WATER PLANT
+    <span class="w3-xxlarge w3-text-white w3-wide">
+      <!-- WATER PLANT -->
+
       <style type="text/css">
+.container{
+  position: relative;
+  width: 100%;
+
+}
 .container .btn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
-  background-color: #f1f1f1;
+  background-color: transparent;
   color: black;
   font-size: 16px;
   padding: 16px 30px;
   border: none;
-  opacity: 0.6;
+  opacity: 0.1;
   transition: 0.3s;
   cursor: pointer;
   border-radius: 5px;
@@ -346,13 +358,28 @@ body, html {
 }
 
 .container .btn:hover {
-  background-color: black;
+  background-color: transparent;
   color: white;
-  opacity: 1;
+  opacity: 0.5;
 }
 
 </style>
-      <button class="btn">Button</button>
+    <iframe name="votar2" style="display:none;"></iframe>
+    <form action="https://api.particle.io/v1/devices/350025000b47363339343638/pumpon?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4" method="post" target="votar">
+    
+    
+    <input type="hidden" name="ad_id2" value="2">            
+    <button class="btn">WATER PLANT</button>
+    </form>
+    <br>
+             
+    
+    <iframe name="votar" style="display:none;"></iframe>
+    <form action="https://api.particle.io/v1/devices/350025000b47363339343638/pumpoff?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4" method="post" target="votar">
+    
+    <input type="hidden" name="ad_id" value="2">   
+    <button class="btn">STOP WATERING PLANT</button>
+    </form>
     </span>
   </div>
 </div>
