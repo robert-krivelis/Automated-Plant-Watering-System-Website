@@ -92,7 +92,7 @@ body, html {
           borderWidth: 3,
         },
         {
-          label: "Temperature, Celsius", 
+          label: "Temperature(C)", 
           fill: false,
           data: [m, m, m, m, m, m, m, m, m],
           lineTension: 0.5,
@@ -196,18 +196,21 @@ body, html {
 </div>  
    
 
-  
-<div class="w3-row w3-center w3-dark-grey w3-padding-64">
-<div id="viewer"></div>
-  <h3 class="w3-center w3-text-black w3-xxlarge"> Data: Long-Term</h3>
-  <canvas id="historyChart" width="500" height="100"></canvas>
+
+<div class="w3-content w3-row w3-center w3-dark-grey w3-padding-64" style="position:relative">
+  <!-- <div class="behind w3-row w3-center w3-dark-grey w3-padding-64" style="{z-index:-1;position:absolute;bottom:0;height:800px;}"></div>
+ --><!-- <div id="viewer"></div> -->
+  <h3 class="w3-center w3-text-white w3-xxlarge"> Data: Long-Term</h3>
+  <canvas id="historyChart" width="1000px" height="300px"></canvas>
     <script type="text/javascript">
     var historyCanvas = document.getElementById("historyChart");
+    // var devicewidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+    // historyCanvas.width = devicewidth;
     Chart.defaults.global.defaultFontFamily = "Lato";
     Chart.defaults.global.defaultFontSize = 18;
 
     var Data2 = {
-      labels: {{allvalues.xvalues | tojson }},
+      labels: {{allvalues.idvalues | tojson}},//{{allvalues.xvalues | tojson }},
       datasets: [{
         label: "Moisture %",
         fill: false,
@@ -266,37 +269,40 @@ body, html {
     var chartOptions2 = {
       legend: {
         display: true,
+        fontColor: 'white',
         position: 'top',
         labels: {
           boxWidth: 30,
-          fontColor: 'black'
+          fontColor: 'white'
         }
       },
       scales: {
         yAxes: [{
           display: true,
+          fontColor: 'white',
           gridLines: {
-                    color: "rgba(0, 0, 0, 0)",
+                    color: "transparent",
                 },
           ticks: {
-            suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-            // OR //
-            suggestedMax: 0,
-            beginAtZero: false   // minimum value will be 0.
-          }
+                    fontColor: "white",
+                    fontSize: 18,
+                    stepSize: 20,
+                    beginAtZero: true
+                }
         }],
         xAxes: [{
-          display: true,
-          gridLines: {
-                    color: "rgba(0, 0, 0, 0)",
-                },
-          ticks: {
-                                // minimum will be 0, unless there is a lower value.
-            beginAtZero: false   // minimum value will be 0.
-          },
-          labelString: 'Date',
-          fontColor: 'white'
-        }]
+           ticks: {
+                    fontColor: "white",
+                    fontSize: 14,
+                    stepSize: 15,
+                    beginAtZero: true,
+                    autoSkip: true,
+                    maxTicksLimit: 50
+                  },
+       gridLines: {
+                    color: "transparent",
+                }, 
+              }]
       },
       
       title: {
@@ -319,7 +325,35 @@ body, html {
 <!-- Second Parallax Image with Portfolio Text -->
 <div class="bgimg-2 w3-display-container w3-opacity-min">
   <div class="w3-display-middle">
-    <span class="w3-xxlarge w3-text-white w3-wide">PORTFOLIO</span>
+    <span class="w3-xxlarge w3-text-white w3-wide">WATER PLANT
+      <style type="text/css">
+.container .btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #f1f1f1;
+  color: black;
+  font-size: 16px;
+  padding: 16px 30px;
+  border: none;
+  opacity: 0.6;
+  transition: 0.3s;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.container .btn:hover {
+  background-color: black;
+  color: white;
+  opacity: 1;
+}
+
+</style>
+      <button class="btn">Button</button>
+    </span>
   </div>
 </div>
 

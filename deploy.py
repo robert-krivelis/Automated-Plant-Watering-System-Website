@@ -32,7 +32,9 @@ xvalues = Plant.query.with_entities(Plant.time).all()
 ytemperature = Plant.query.with_entities(Plant.temperature).all()
 ymoisture = Plant.query.with_entities(Plant.moisture).all()
 yhumidity = Plant.query.with_entities(Plant.humidity).all()
+idvalues = Plant.query.with_entities(Plant.id).all()
 reallyxvalues=[]
+reallyidvalues=[]
 reallytemperature=[]
 reallyhumidity = []
 reallymoisture = []
@@ -44,7 +46,8 @@ for i in range(1,(len(yhumidity))):
 	reallyhumidity.append(yhumidity[i][0])
 for i in range(1,(len(ymoisture))):
 	reallymoisture.append(ymoisture[i][0])
-
+for i in range(1,(len(idvalues))):
+	reallyidvalues.append(idvalues[i][0])
 def record_loop(loop_on):
 	while True:
 		if loop_on.value == True:
@@ -59,17 +62,17 @@ def record_loop(loop_on):
 			db.session.add(newReading)
 			db.session.commit()
 			time.sleep(1)
-allvalues= {'xvalues':reallyxvalues,'ytemperature':reallytemperature,'ymoisture':reallymoisture,'yhumidity':reallyhumidity, 'currenttemperature':reallytemperature[-1], 'currenthumidity':reallyhumidity[-1],'currentmoisture':reallymoisture[-1]}
+allvalues= {'idvalues':reallyidvalues, 'xvalues':reallyxvalues,'ytemperature':reallytemperature,'ymoisture':reallymoisture,'yhumidity':reallyhumidity, 'currenttemperature':reallytemperature[-1], 'currenthumidity':reallyhumidity[-1],'currentmoisture':reallymoisture[-1]}
 
 @app.route('/')
 def index():
 	return render_template("websiteinprogress.html", allvalues=allvalues)
-	
+
 if __name__ == "__main__":
 	recording_on = Value('b', True)
 	p = Process(target=record_loop, args=(recording_on,))
 	p.start()  
-	app.run(debug=True, use_reloader=False)
+	app.run(use_reloader=False)
 	p.join()
 
 
