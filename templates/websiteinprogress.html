@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-<title>Plant Irrigation Super System</title>
 <meta charset="UTF-8">
+<title>Plant Irrigation Super System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
@@ -59,12 +59,140 @@ body, html {
 
 <!-- Container (About Section) -->
 <div class="w3-content w3-container w3-padding-64" id="about">
-  <h3 class="w3-center w3-text-grey w3-xxlarge">Data: Real Time</h3>
-   
-      <canvas id="speedChart" width="300" height="100"></canvas>
-      <script type="text/javascript" src="{{ url_for('static', filename='moistrealtime.js')}}"></script>
-        <!-- this line might be fucky if you dont remove type=text/javascript -->
-  <p class="w3-center" ><em>Real time data for your plant</em></p>
+  <h3 class="w3-center w3-text-grey w3-xxlarge">Data: Real Time</h3>   
+    <canvas id="speedChart" width="300" height="100"></canvas>
+      <script>
+      Chart.defaults.global.defaultFontFamily = "Lato";
+      Chart.defaults.global.defaultFontSize = 18;
+      var speedCanvas = document.getElementById("speedChart");
+
+      var globalmoist = {{allvalues.currentmoisture | tojson}} ;
+      var globaltemp = {{allvalues.currenttemperature | tojson}} ;
+      var globalhumid = {{allvalues.currenthumidity| tojson}} ;
+      var cm = globalmoist;
+      var m = globaltemp;
+      var c = globalhumid;
+
+      var speedData = {
+        labels: [-5, -4, -3, -2, -1, 0],
+        datasets: [{
+          label: "Moisture %", //change to"Moisture %"
+          fill: false,
+          data: [globalmoist, globalmoist, globalmoist, cm, cm, cm, cm, cm, cm],
+          lineTension: 0.5,
+          backgroundColor: 'transparent',
+          pointBorderColor: 'black',
+          pointHoverRadius: 10,
+          pointHitRadius: 60,
+          pointBackgroundColor: 'green',
+          pointRadius: 3,
+          pointBorderWidth: 1,
+          //backgroundColor:'rgba(0,0,255,0.5)',
+          borderColor: 'green',
+          borderWidth: 3,
+        },
+        {
+          label: "Temperature, Celsius", 
+          fill: false,
+          data: [m, m, m, m, m, m, m, m, m],
+          lineTension: 0.5,
+          backgroundColor: 'transparent',
+          //backgroundColor:'rgba(0,0,255,0.5)',
+          borderColor: 'red',
+          borderWidth: 3,
+          usePointStyle: false,
+          pointBorderColor: 'black',
+          pointBackgroundColor: 'red',
+          pointRadius: 3,
+          pointHoverRadius: 10,
+          pointHitRadius: 60,
+          pointBorderWidth: 1,
+          pointStyle: 'circle'
+        },
+        {
+          label: "Humidity %", 
+          fill: false,
+          data: [c, c, c, c, c, c, c, c, c],
+          lineTension: 0.5,
+          backgroundColor: 'transparent',
+          //backgroundColor:'rgba(0,0,255,0.5)',
+          borderColor: 'blue',
+          borderWidth: 3,
+          usePointStyle: false,
+          pointBorderColor: 'black',
+          pointBackgroundColor: 'blue',
+          pointRadius: 3,
+          pointHoverRadius: 10,
+          pointHitRadius: 30,
+          pointBorderWidth: 1,
+          pointStyle: 'circle'
+        }]
+      };
+
+      var chartOptions = {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            boxWidth: 30,
+            fontColor: 'black'
+          }
+        },
+        scales: {
+          yAxes: [{
+            display: true,
+            gridLines: {
+                      color: "rgba(0, 0, 0, 0)",
+                  },
+            ticks: {
+              suggestedMin: cm,    // minimum will be 0, unless there is a lower value.
+              suggestedMax: cm ,
+              beginAtZero: false   // minimum value will be 0.
+            }
+          }],
+          xAxes: [{
+            display: true,
+            gridLines: {
+                      color: "rgba(0, 0, 0, 0)",
+                  },
+            ticks: {
+              suggestedMin: 5,    // minimum will be 0, unless there is a lower value.
+              min: -5,
+              
+              beginAtZero: false   // minimum value will be 0.
+              
+            },
+            labelString: 'Time (seconds)',
+            fontcolor: 'grey'
+          }]
+        },
+        
+        title: {
+          display:false,
+          fontColor: 'black',
+          text: "Current Dampness of the Soil",
+          position: 'top'
+        }
+      };
+
+      setInterval(adddata,1000)
+      function adddata(){
+        lineChart.data.datasets[0].data.shift();
+        lineChart.data.datasets[0].data.push(globalmoist);
+        lineChart.data.datasets[1].data.shift();
+        lineChart.data.datasets[1].data.push(globaltemp);
+        lineChart.data.datasets[2].data.shift();
+        lineChart.data.datasets[2].data.push(globalhumid);
+        lineChart.update();
+      }
+
+      var lineChart = new Chart(speedCanvas, {
+        type: 'line',
+        data: speedData,
+        options: chartOptions
+      });
+      </script>
+    <p class="w3-center" ><em>Real time data for your plant</em></p>
 </div>  
    
 
@@ -73,122 +201,119 @@ body, html {
 <div id="viewer"></div>
   <h3 class="w3-center w3-text-black w3-xxlarge"> Data: Long-Term</h3>
   <canvas id="historyChart" width="500" height="100"></canvas>
-  <script type="text/javascript">
-var historyCanvas = document.getElementById("historyChart");
-var cm = null;
-Chart.defaults.global.defaultFontFamily = "Lato";
-Chart.defaults.global.defaultFontSize = 18;
+    <script type="text/javascript">
+    var historyCanvas = document.getElementById("historyChart");
+    Chart.defaults.global.defaultFontFamily = "Lato";
+    Chart.defaults.global.defaultFontSize = 18;
 
-var Data2 = {
-  labels: {{plantobj.xvalues | tojson }},
-  datasets: [{
-    label: "Moisture %",
-    fill: false,
-    data: {{plantobj.ymoisture | tojson }},
-    lineTension: 0.5,
-    backgroundColor: 'transparent',
-    pointBorderColor: 'black',
-    pointHoverRadius: 10,
-    pointHitRadius: 60,
-    pointBackgroundColor: 'green',
-    pointRadius: 3,
-    pointBorderWidth: 1,
-    //backgroundColor:'rgba(0,0,255,0.5)',
-    borderColor: 'green',
-    borderWidth: 3,
-  },
-  {
-    label: "Temperature(C)", 
-    fill: false,
-    data: {{plantobj.ytemperature | tojson }},
-    lineTension: 0.5,
-    backgroundColor: 'transparent',
-    //backgroundColor:'rgba(0,0,255,0.5)',
-    borderColor: 'red',
-    borderWidth: 3,
-   
-    usePointStyle: false,
-    pointBorderColor: 'black',
-    pointBackgroundColor: 'red',
-    pointRadius: 3,
-    pointHoverRadius: 10,
-    pointHitRadius: 60,
-    pointBorderWidth: 1,
-    pointStyle: 'circle'
-  },
-  {
-    label: "Humidity %", 
-    fill: false,
-    data: {{plantobj.yhumidity | tojson }},
-    lineTension: 0.5,
-    backgroundColor: 'transparent',
-    //backgroundColor:'rgba(0,0,255,0.5)',
-    borderColor: 'blue',
-    borderWidth: 3,
-   
-    usePointStyle: false,
-    pointBorderColor: 'black',
-    pointBackgroundColor: 'blue',
-    pointRadius: 3,
-    pointHoverRadius: 10,
-    pointHitRadius: 30,
-    pointBorderWidth: 1,
-    pointStyle: 'circle'
-  }]
-};
-
-var chartOptions2 = {
-  legend: {
-    display: true,
-    position: 'top',
-    labels: {
-      boxWidth: 30,
-      fontColor: 'black'
-    }
-  },
-  scales: {
-    yAxes: [{
-      display: true,
-      gridLines: {
-                color: "rgba(0, 0, 0, 0)",
-            },
-      ticks: {
-        suggestedMin: cm,    // minimum will be 0, unless there is a lower value.
-        // OR //
-        suggestedMax: cm ,
-        beginAtZero: false   // minimum value will be 0.
-      }
-    }],
-    xAxes: [{
-      display: true,
-      gridLines: {
-                color: "rgba(0, 0, 0, 0)",
-            },
-      ticks: {
-        suggestedMin: 5,    // minimum will be 0, unless there is a lower value.
-        beginAtZero: false   // minimum value will be 0.
+    var Data2 = {
+      labels: {{allvalues.xvalues | tojson }},
+      datasets: [{
+        label: "Moisture %",
+        fill: false,
+        data: {{allvalues.ymoisture | tojson }},
+        lineTension: 0.5,
+        backgroundColor: 'transparent',
+        pointBorderColor: 'black',
+        pointHoverRadius: 10,
+        pointHitRadius: 60,
+        pointBackgroundColor: 'green',
+        pointRadius: 3,
+        pointBorderWidth: 1,
+        //backgroundColor:'rgba(0,0,255,0.5)',
+        borderColor: 'green',
+        borderWidth: 3,
       },
-      labelString: 'Date',
-      fontcolor: 'white'
-    }]
-  },
-  
-  title: {
-    display:false,
-    fontColor: 'black',
-    text: "Current Dampness of the Soil",
-    position: 'top'
-  }
-};
+      {
+        label: "Temperature(C)", 
+        fill: false,
+        data: {{allvalues.ytemperature | tojson }},
+        lineTension: 0.5,
+        backgroundColor: 'transparent',
+        //backgroundColor:'rgba(0,0,255,0.5)',
+        borderColor: 'red',
+        borderWidth: 3,
+        usePointStyle: false,
+        pointBorderColor: 'black',
+        pointBackgroundColor: 'red',
+        pointRadius: 3,
+        pointHoverRadius: 10,
+        pointHitRadius: 60,
+        pointBorderWidth: 1,
+        pointStyle: 'circle'
+      },
+      {
+        label: "Humidity %", 
+        fill: false,
+        data: {{allvalues.yhumidity | tojson }},
+        lineTension: 0.5,
+        backgroundColor: 'transparent',
+        //backgroundColor:'rgba(0,0,255,0.5)',
+        borderColor: 'blue',
+        borderWidth: 3,
+       
+        usePointStyle: false,
+        pointBorderColor: 'black',
+        pointBackgroundColor: 'blue',
+        pointRadius: 3,
+        pointHoverRadius: 10,
+        pointHitRadius: 30,
+        pointBorderWidth: 1,
+        pointStyle: 'circle'
+      }]
+    };
 
-var lineChart2 = new Chart(historyCanvas, {
-  type: 'line',
-  data: Data2,
-  options: chartOptions2
-});</script>
+    var chartOptions2 = {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          boxWidth: 30,
+          fontColor: 'black'
+        }
+      },
+      scales: {
+        yAxes: [{
+          display: true,
+          gridLines: {
+                    color: "rgba(0, 0, 0, 0)",
+                },
+          ticks: {
+            suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+            // OR //
+            suggestedMax: 0,
+            beginAtZero: false   // minimum value will be 0.
+          }
+        }],
+        xAxes: [{
+          display: true,
+          gridLines: {
+                    color: "rgba(0, 0, 0, 0)",
+                },
+          ticks: {
+                                // minimum will be 0, unless there is a lower value.
+            beginAtZero: false   // minimum value will be 0.
+          },
+          labelString: 'Date',
+          fontColor: 'white'
+        }]
+      },
+      
+      title: {
+        display:false,
+        fontColor: 'black',
+        text: "Current Dampness of the Soil",
+        position: 'top'
+      }
+    };
+
+    var lineChart2 = new Chart(historyCanvas, {
+      type: 'line',
+      data: Data2,
+      options: chartOptions2
+    });
+    </script>
   <p class="w3-center"><em>Historic data of your plant</em></p>
-  
-  
 </div>
 
 <!-- Second Parallax Image with Portfolio Text -->

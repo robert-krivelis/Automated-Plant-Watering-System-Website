@@ -1,91 +1,75 @@
-from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import time
 import requests
+import time
+from flask import Flask, render_template, request
+from datetime import datetime
+from multiprocessing import Process, Value
 
-#datetime.now()
-#yr,month,day,hour,min,second,ms
-app = Flask(__name__)	
-#print(today.strftime("%A, %B, %d, %Y"))
-#from deploy import db? not neccesary
-#db.create_all()
-#from deploy import plant #not necesary
-#reading1= Plant(temperature = '21.2')
-#db.session.add(reading1)
-#db.session.commit()
-#Plant.query.all()
-#Plant.query.filter_by(*).all()
-#Plant.query.get(1) - we want to be able to search the database by column
-#Plant.query.oder
-#xvalues, yvalues will be a list
+app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///new.db'
+db = SQLAlchemy(app)	
 
-#---------------------------------------
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 moistURL = 'https://api.particle.io/v1/devices/350025000b47363339343638/moisturePercentage?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4'
 tempURL = 'https://api.particle.io/v1/devices/350025000b47363339343638/temperature?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4'
 humidURL = 'https://api.particle.io/v1/devices/350025000b47363339343638/humidity?access_token=1aa09ff2c1a069ca69c16e6822b0602412a8c1c4'
 
 def getjson(url):
 	r = requests.get(url)
-	out = r.json()['result']
-	return out
-time.sleep(0.1)
-globalmoist = getjson(moistURL) 
-globaltemp = getjson(tempURL)
-globalhumid = getjson(humidURL)
-
-db = SQLAlchemy(app)
-
+	return r.json()['result']
+	
 class Plant(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	time = db.Column(db.String, nullable=False, default = datetime.now().strftime("%A, %B %d, %I:%M %p"))
 	moisture = db.Column(db.Integer)
 	temperature = db.Column(db.Float)
 	humidity = db.Column(db.Float)
-
 def __repr__(self):
 	return f"Plant('{self.time}','{self.moisture}','{self.temperature}','{self.humidity}')"
-
-globalmoist = getjson(moistURL)
-time.sleep(0.1)
-globalhumid = getjson(humidURL)
-time.sleep(0.1)
-globaltemp = getjson(tempURL)
-time.sleep(0.1)
-time.sleep(10)
-newReading = Plant(moisture = globalmoist, temperature = globaltemp, humidity = globalhumid)
-db.session.add(newReading)
-db.session.commit()
-
-	# What you want to run in the foreground
-	
+db.create_all()
 
 xvalues = Plant.query.with_entities(Plant.time).all()
 ytemperature = Plant.query.with_entities(Plant.temperature).all()
 ymoisture = Plant.query.with_entities(Plant.moisture).all()
 yhumidity = Plant.query.with_entities(Plant.humidity).all()
+reallyxvalues=[]
+reallytemperature=[]
+reallyhumidity = []
+reallymoisture = []
+for i in range(1,(len(reallyxvalues))):
+	reallyxvalues.append(reallyxvalues[i][0])
+for i in range(1,(len(ytemperature))):
+	reallytemperature.append(ytemperature[i][0])
+for i in range(1,(len(yhumidity))):
+	reallyhumidity.append(yhumidity[i][0])
+for i in range(1,(len(ymoisture))):
+	reallymoisture.append(ymoisture[i][0])
 
-plantobj = {'xvalues':xvalues,'ytemperature':ytemperature,'ymoisture':ymoisture,'yhumidity':yhumidity}
-object1 = {'num': [86,114,106,106,107,111,133,221,783,24782], 'rest': 'jemima'}
+def record_loop(loop_on):
+	while True:
+		if loop_on.value == True:
+			print("loop running")
+			globalmoist = getjson(moistURL)
+			time.sleep(1)
+			globalhumid = getjson(humidURL)
+			time.sleep(1)
+			globaltemp = getjson(tempURL)
+			time.sleep(1)
+			newReading = Plant(moisture = globalmoist, temperature = globaltemp, humidity = globalhumid)
+			db.session.add(newReading)
+			db.session.commit()
+			time.sleep(1)
+allvalues= {'xvalues':reallyxvalues,'ytemperature':reallytemperature,'ymoisture':reallymoisture,'yhumidity':reallyhumidity, 'currenttemperature':reallytemperature[-1], 'currenthumidity':reallyhumidity[-1],'currentmoisture':reallymoisture[-1]}
 
 @app.route('/')
 def index():
-	return render_template("websiteinprogress.html", object1=object1, plantobj=plantobj)
+	return render_template("websiteinprogress.html", allvalues=allvalues)
+	
+if __name__ == "__main__":
+	recording_on = Value('b', True)
+	p = Process(target=record_loop, args=(recording_on,))
+	p.start()  
+	app.run(debug=True, use_reloader=False)
+	p.join()
 
 
-
-# def updatedatabase():
-# 	try:
-# 		while(1):
-# 			getdata()
-# 	except KeyError:
-# 		print("plant offline!")
-# 		updatedatabase()
-# def getdata():	
-
-# updatedatabase()
-	#return render_template("websiteinprogress.html", xvalues=xvalues, globalmoist=globalmoist, globaltemp=globaltemp, globalhumid=globalhumid)
-#if __name__ == '__main__':
-#	app.run(debug=True)
