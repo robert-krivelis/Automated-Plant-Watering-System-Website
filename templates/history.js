@@ -6,11 +6,49 @@ Chart.defaults.global.defaultFontFamily = "Lato";
 Chart.defaults.global.defaultFontSize = 18;
 
 var Data = {
-  labels: [ {{globalmoist}} ],
+  labels: {{plantobj.xvalues | tojson }},
   datasets: [{
     label: "Moisture %",
     fill: false,
-    data: [cm, cm, cm, cm, cm, cm, cm, cm, cm],
+    data: {{plantobj.ymoisture | tojson }},
+    lineTension: 0.5,
+    backgroundColor: 'transparent',
+    //backgroundColor:'rgba(0,0,255,0.5)',
+    borderColor: 'green',
+    borderWidth: 3,
+   
+    usePointStyle: false,
+    pointBorderColor: 'green',
+    pointBackgroundColor: 'green',
+    pointRadius: 3,
+    pointHoverRadius: 10,
+    pointHitRadius: 30,
+    pointBorderWidth: 2,
+    pointStyle: 'circle'
+  },
+  {
+    label: "Temperature", 
+    fill: false,
+    data: {{plantobj.ytemperature | tojson }},
+    lineTension: 0.5,
+    backgroundColor: 'transparent',
+    //backgroundColor:'rgba(0,0,255,0.5)',
+    borderColor: 'red',
+    borderWidth: 3,
+   
+    usePointStyle: false,
+    pointBorderColor: 'red',
+    pointBackgroundColor: 'red',
+    pointRadius: 3,
+    pointHoverRadius: 10,
+    pointHitRadius: 30,
+    pointBorderWidth: 2,
+    pointStyle: 'circle'
+  },
+  {
+    label: "Humidity", 
+    fill: false,
+    data: {{plantobj.yhumidity | tojson }},
     lineTension: 0.5,
     backgroundColor: 'transparent',
     //backgroundColor:'rgba(0,0,255,0.5)',
@@ -57,8 +95,6 @@ var chartOptions = {
             },
       ticks: {
         suggestedMin: 5,    // minimum will be 0, unless there is a lower value.
-        min: -5,
-        
         beginAtZero: false   // minimum value will be 0.
         
       }
@@ -72,18 +108,8 @@ var chartOptions = {
     position: 'top'
   }
 };
-var cnt = 0;
-setInterval(adddata,1000)
-function adddata(){
-  var newdata = Math.floor(Math.random()*(75-65)+65);
-  lineChart.data.datasets[0].data.shift();
-  lineChart.data.datasets[0].data.push(globalmoist.percent);
-  lineChart.update();
-  cnt++;
-}
 
-
-var lineChart = new Chart(HistoryCanvas, {
+var lineChart = new Chart(historyCanvas, {
   type: 'line',
   data: Data,
   options: chartOptions
