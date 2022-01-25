@@ -5,9 +5,12 @@
 </p>
 
 ## About
-This design project to create a self-watering plant was created for the course ENEL 400. 
+We created a self-watering, wifi-connected plant.
+
 Users can fill up the water storage under the plant, and then the plant will water itself when the soil gets too dry.
+
 The website was created as an add-on to the base project to monitor the plant's humidity and temperature and allow for remotely watering the plant as required.
+
 
 ## Project Features
 * Uses Particle.io photon wifi-connected microcontroller
@@ -18,6 +21,7 @@ The website was created as an add-on to the base project to monitor the plant's 
 <img src="https://user-images.githubusercontent.com/43624936/151049627-4606ee69-a683-48c7-9432-2c797a8364d9.jpg" alt="microcontroller and pcb" width="250"/>
 </p>
 
+
 ## Website Features
 * Real time sensor measurements using Plotly.js for graphing
 * Historical data tracking using SQLite to store data measurements
@@ -27,6 +31,7 @@ The website was created as an add-on to the base project to monitor the plant's 
 * First web project I ever created
 * Project completed over a weekend 
 
+Website screenshots:
 
 <img src="https://user-images.githubusercontent.com/43624936/151066075-5eaf545d-c68e-4932-9184-c07ed5048bc6.JPG" alt="Site top" width="400"/>
 <img src="https://user-images.githubusercontent.com/43624936/151066081-49d81146-41d0-4a45-842b-20f34258b602.JPG" alt="Site bottom" width="400"/>
