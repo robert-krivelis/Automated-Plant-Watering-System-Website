@@ -1,4 +1,4 @@
-# Automated Plant Irrigation System - Website
+# Automated Plant Irrigation System
 <p float="left">
 <img src="https://user-images.githubusercontent.com/43624936/151049501-cb68fc7a-c842-4639-a669-fb1d96f52a3d.jpg" alt="plant finished" width="300"/>
 <img src="https://user-images.githubusercontent.com/43624936/151049646-b001443c-e681-4afa-b15d-f64db8055d86.jpg" alt="plant and poster" width="300"/>
