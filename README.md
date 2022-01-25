@@ -5,7 +5,7 @@
 </p>
 
 ## About
-ENEL 400 Design project to create a self-watering plant. 
+This design project to create a self-watering plant was created for the course ENEL 400. 
 Users can fill up the water storage under the plant, and then the plant will water itself when the soil gets too dry.
 The website was created as an add-on to the base project to monitor the plant's humidity and temperature and allow for remotely watering the plant as required.
 
