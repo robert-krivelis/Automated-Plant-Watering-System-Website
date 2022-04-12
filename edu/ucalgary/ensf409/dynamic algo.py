@@ -249,23 +249,26 @@ for item in item_list:
     cal_converted_item = [percent * item[5] / 100 for percent in item[1:5]]
     available_food.append(cal_converted_item)
 
-max_cals_by_category = [sum(food) for food in available_food]
+max_cals_by_category = []
+for i in range(4):
+    max_cals_by_category.append(sum([food[i] for food in available_food]))
 max_cals = sum(max_cals_by_category)
+
 foodTargetsByCategory = [
     max_cals_by_category[0] * .8, max_cals_by_category[1] * .8,
     max_cals_by_category[2] * .8, max_cals_by_category[3] * .8
 ]
 
-print('available', max_cals_by_category, 'targets', foodTargetsByCategory)
+# print('available', max_cals_by_category, 'targets', foodTargetsByCategory)
 
-wasted_calories_max = max_cals
-wasted_calories_min = [max_cals] # will change with annealing
-best_sol = [available_food] # will change with annealing
-
+wasted_calories_max = sum(max_cals_by_category) - sum(foodTargetsByCategory)
+print('max cal wasted', round(wasted_calories_max))
+wasted_calories_min = [max_cals]  # will change with annealing
+best_sol = [available_food.copy()]  # will change with annealing
 
 
 def simulated_annealing(
-    available_food,
+    
     costf,
     temp=10000.0,
     cool=0.999,
@@ -278,124 +281,94 @@ def simulated_annealing(
 
     # Initialize hamper food with roughly the same number of items of food as the result requires
     # Percentage of items needed is roughly target_cals/total_cals
-    item_percentage_roughly = sum(foodTargetsByCategory) / max_cals * 100
+    item_percentage_roughly = .95  #sum(foodTargetsByCategory) / max_cals * 100
 
-    current_hamper = [
-        food for food in available_food
-        if random.randint(0, 100) <= item_percentage_roughly
-    ]
-
-    for food in current_hamper: # adjust available food according to what was added to the hamper
+    # initial_hamper = [
+    #     food for food in available_food
+    #     if random.randint(0, 100) <= item_percentage_roughly
+    # ]
+    global available_food
+    initial_hamper = available_food
+    best_sol[0] = initial_hamper.copy()  # keep track of best solution so far
+    for food in initial_hamper:  # adjust available food according to what was added to the hamper
         available_food.remove(food)
 
-    print('starting hamper len', len(current_sol))
-    print('starting food len', len(available_food))
-
+    # print('starting hamper len', len(current_sol))
+    # print('starting food len', len(available_food))
+    current_sol = initial_hamper.copy()
+    new_sol = current_sol.copy()
+    new_cost = wasted_calories_max
     while temp > min_temp:
-        new_sol, new_available_food = neighbor(current_sol, available_food)
-        # flip a coin to see whether to add or remove a food item to/from hamper
-        add = bool(random.randint(0, 1))
-        if len(current_sol) == 0:  # current_hamper = empty
-            add = True
-        elif len(available_food) == 0:
-            add = False
-        if not check_valid(current_sol):
-            add = True
+        # change the existing solution slightly
 
-        # create copies of the current hamper and food
-        new_sol = current_sol[:]
-        new_available_food = available_food[:]
-
-        # if coinflip succeeds add to current
-        if add:
-            # select random food to add to hamper
-            i = random.randint(0, len(new_available_food) - 1)
-            food = new_available_food[i]
-
-            # add food to hamper and remove it from available food
-            new_sol.append(food)
-            new_available_food.remove(food)
-        # if coinflip fails remove from current
-
-        elif not add:
-            # select random food to remove from hamper
-            i = random.randint(0, len(new_sol) - 1)
-            food = new_sol[i]
-
-            # remove food to hamper and add it to available food
-            new_available_food.append(food)
-            new_sol.remove(food)
-
-        if bool(random.randint(0,1)): # half the time randomly swap two foods
-            # select random foods to swap
-            i = random.randint(0, len(new_available_food) - 1)
-            food1 = new_available_food[i]
-            j = random.randint(0, len(new_sol) - 1)
-            food2 = new_sol[j]
-
-            # swap foods
-            new_sol.append(food1)
-            new_available_food.remove(food1)
-            new_sol.remove(food2)
-            new_available_food.append(food2)
-
-        # if coinflip fails remove from current
-        # calculate the current cost and the new cost
+        while new_cost == wasted_calories_max:
+            new_sol, new_available_food = neighbor(current_sol.copy(),
+                                                   available_food.copy())
+            #  new_sol, new_available_food = neighbor(current_sol.copy(),
+            #                                         available_food.copy())
+            # calculate the current cost and the new cost
+            new_cost = costf(new_sol, foodTargetsByCategory)
         current_cost = costf(current_sol, foodTargetsByCategory)
-        new_cost = costf(new_sol, foodTargetsByCategory)
         # if new_cost < wasted_calories_min[0]:
         #     wasted_calories_min[0] = new_cost
         # best_sol[0] = new_sol[:]
-        #p = pow(math.e, (- new_cost - current_cost) / temp)
+
+        # calculate probability cutoff
         p = math.e**((-new_cost - current_cost) / temp)
 
-        # is it better, or does it make the probability
-        # cutoff?
+        # is it better, or does it make the probability cutoff?
         if (new_cost < current_cost or random.random() < p):
-            # print(new_cost)
-            current_sol = new_sol[:]
-            available_food = new_available_food[:]
-        if new_cost < min_cost:
-            min_cost = new_cost
-            min_solution = new_sol
+            current_sol = new_sol.copy()
+            available_food = new_available_food.copy()
+            print('new cost', new_cost)
+
+        # # my code for calculating best so far
+        if new_cost < wasted_calories_min[0]:
+            wasted_calories_min[0] = new_cost
+            best_sol[0] = new_sol
 
         # decrease the temperature
         temp = temp * cool
-    print('MIN COST ', min_cost)
+    # print('MIN COST ', min_cost)
     # print('MIN sol ', min_solution, len(min_solution))
-    return min_solution
+    return best_sol[0]
 
 
-def check_valid(hampers_to_sum):
-    for i in range(0, len(foodTargetsByCategory)
-                   ):  # number of foodCategories (fruit,veg,prot,other)
-        calsOfCategory = [food[i] for food in hampers_to_sum]
-        if sum(calsOfCategory
-               ) < foodTargetsByCategory[i]:  # if less than target
+def check_valid(hampers_to_sum, targets=foodTargetsByCategory):
+    for i in range(
+            0,
+            len(targets)):  # number of foodCategories (fruit,veg,prot,other)
+        calsOfCategory = sum([food[i] for food in hampers_to_sum])
+        categoryTarget = targets[i]
+        if calsOfCategory < categoryTarget:  # if less than target
             return False  # return not valid
     return True  # else return valid
 
 
 def costf(hampers_to_sum, targets=foodTargetsByCategory):
-    if not check_valid(hampers_to_sum):
+    if not check_valid(hampers_to_sum, targets):
         cost = wasted_calories_max
         return cost
 
     waste = 0
-    for i in range(len(foodTargetsByCategory)):
+    for i in range(len(targets)):
         calsOfCategory = [food[i] for food in hampers_to_sum]
         waste += sum(calsOfCategory) - targets[i]
-    if waste < 0: # this is a bandaid. waste of 0 shouldn't happen.
+    if waste < 0:  # this is a bandaid. waste of 0 shouldn't happen.
         waste = wasted_calories_max
     return waste
+
 
 def neighbor(current_sol, available_food):
     # change the current solution slightly.
     # 50% chance to swap items, 50% chance to simply add or remove an item
-    new_sol = current_sol
-    new_available_food = available_food
+    new_sol = current_sol.copy()
+    new_available_food = available_food.copy()
+
     # flip a coin to see whether to swap items
     swap = bool(random.randint(0, 1))
+    if len(new_sol) == 0 or len(new_available_food) == 0:
+        swap = False
     if swap:
         # select random foods to swap
         i = random.randint(0, len(new_available_food) - 1)
@@ -410,13 +383,16 @@ def neighbor(current_sol, available_food):
         new_available_food.append(food2)
     else:
         add = bool(random.randint(0, 1))
-        
+
         # check for edge cases where hamper or available food is empty
-        if (len(new_sol) == 0 ):  # if current_hamper is empty must add food to hamper 
+        if (len(new_sol) == 0
+            ):  # if current_hamper is empty must add food to hamper
             add = True
-        elif len(new_available_food) == 0: # if available_food is empty must remove food from hamper
-            add = False    
-        
+        elif len(
+                new_available_food
+        ) == 0:  # if available_food is empty must remove food from hamper
+            add = False
+
         # if coinflip succeeds add to current
         if add:
             # select random food to add to hamper
@@ -435,14 +411,14 @@ def neighbor(current_sol, available_food):
             # remove food to hamper and add it to available food
             new_available_food.append(food)
             new_sol.remove(food)
-    return new_sol, new_available_food
+    return new_sol.copy(), new_available_food.copy()
+
 
 # for i in range(3):
-best = simulated_annealing(available_food=available_food,
-                        costf=costf,
-                        cool=0.999)
-print("returned val:", costf(best))
-
+best = simulated_annealing(
+                           costf=costf,
+                           cool=0.99)
+print("returned val:", round(costf(best_sol[0])), round(costf(best)))
 
 # best so far around 147.8 ..
 # print(best)
