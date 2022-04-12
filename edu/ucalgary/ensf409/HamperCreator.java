@@ -95,26 +95,54 @@ public class HamperCreator {
         // availableFoodIndexes);
     }
 
+    public int getMinExcessCalories() {
+        return this.minExcessCalories;
+    }
+
     public Integer[] bruteForceMostEfficientHamper() {
         // brute force O(n^2) time
         // for (int i = 0; i < availableFood.size(); i++) {
-        for (int i = 0; i < 3; i++) {
-            System.out.println(i);
-            for (Integer[] foodCombinationIndexes : possibleFoodCombinations) {
-                if (satisfiesConstraints(foodCombinationIndexes)) {
-                    int excess = calculateExcess(foodCombinationIndexes); // get how wasteful this combo is
-                    if (excess < this.minExcessCalories) {
-                        this.minExcessCalories = excess;
-                        this.minExcessFoodIndexes = foodCombinationIndexes;
-                    }
-                    if (excess == 0) { // micro optimization: if perfect match is found then break early.
-                        return foodCombinationIndexes;
-                    }
+        for (int i = 20; i < 100; i++) {
+            Subsets s4 = new Subsets(i);
+            // int[] a;
+            long startTime = System.nanoTime();
 
-                }
-                ;
+            while (s4.hasNext()) {
+                s4.next();
+                // System.err.print(s4.next());
             }
+            long endTime = System.nanoTime();
+
+            long duration = (endTime - startTime) / 1000000; // divide by 1000000 to get milliseconds.
+            System.err.println(i);
+            System.err.println(duration);
         }
+
+        // // for (int i = ; i < 6; i++) {
+        // // System.out.println(i);
+        // // System.out.println(minExcessCalories);
+        // // possibleFoodCombinations =
+        // getPossibleFoodCombinations(this.availableFoodIndexes, i);
+        // // possibleFoodCombinations = s4.next();
+        // System.out.println(possibleFoodCombinations.size());
+        // for (Integer[] foodCombinationIndexes : possibleFoodCombinations) {
+        // // System.out.println(foodCombinationIndexes.length);
+        // if (satisfiesConstraints(foodCombinationIndexes)) {
+        // // System.out.println("satisfies");
+        // int excess = calculateExcess(foodCombinationIndexes); // get how wasteful
+        // this combo is
+        // if (excess < this.minExcessCalories) {
+        // this.minExcessCalories = excess;
+        // this.minExcessFoodIndexes = foodCombinationIndexes;
+        // }
+        // if (excess == 0) { // micro optimization: if perfect match is found then
+        // break early.
+        // return foodCombinationIndexes;
+        // }
+        // }
+        // }
+        // // }
+        // }
         return this.minExcessFoodIndexes; // todo change to return actual most efficient hamper
     }
 
@@ -188,17 +216,7 @@ public class HamperCreator {
     }
 
     public void addFoodItemsToHamper() {
-        /*
-         * why is there no description of the algo? is this brute force
-         * my description:
-         * while categories_not_met():
-         * if grain_requirement_not_met():
-         * add highest_grain_cals food
-         * 
-         * Definition of "Most efficient food package"/" least wasteful combination" :
-         * According to discussion board, it's minimizing the overall total calories
-         * while meeting the other reqs.
-         */
+    
 
         while (true) {
             // checks if all categories equal overshoot and break if they do
