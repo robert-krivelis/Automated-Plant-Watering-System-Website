@@ -26,7 +26,7 @@ public class HamperCreator {
     // over 8, 3 for child under 8)
     private ArrayList<ClientTypes> theClientTypes = new ArrayList<ClientTypes>();
     // all food from the database
-    private ArrayList<Food> availableFood = new ArrayList<Food>();
+    public static ArrayList<Food> availableFood = new ArrayList<Food>();
     // hamper
     private Hamper hamper = new Hamper();
     private int minExcessCalories;
@@ -76,21 +76,23 @@ public class HamperCreator {
         totOther = totOther * numOfDays;
         totCalories = totCalories * numOfDays;
 
-        // add food
+        // add all food to availableFood
         foodInventoryAccess.initializeConnection();
         foodInventoryAccess.selectAllFoodData();
         availableFood = foodInventoryAccess.getTheFood();
         foodInventoryAccess.close();
 
         this.availableFoodIndexes = IntStream.range(0, availableFood.size()).boxed().collect(Collectors.toList())
-                .toArray(Integer[]::new);
+                .toArray(Integer[]::new); // creates an integer range from 0 up to length availableFood.size()
+        this.minExcessCalories = totCalories;
+        this.minExcessFoodIndexes = availableFoodIndexes;
+        
+        
         // // first value for foodIndexesByExcessCalories is maxCalories and .........
         // this is actualy worthless just leave it null
         // foodIndexesByExcessCalories = new HashMap<Integer, Integer[]>();
         // Integer[] availableFoodIndexes = IntStream.rangeClosed(1,
         // availableFood.size()).boxed().collect(Collectors.toList()).toArray(Integer[]::new);
-        this.minExcessCalories = totCalories;
-        this.minExcessFoodIndexes = availableFoodIndexes;
         // foodIndexesByExcessCalories.put(Integer.valueOf(totCalories),
         // availableFoodIndexes);
     }
@@ -99,8 +101,10 @@ public class HamperCreator {
         return this.minExcessCalories;
     }
 
+
+
     public Integer[] bruteForceMostEfficientHamper() {
-        // brute force O(n^2) time
+        // brute force O(n!) time
         // for (int i = 0; i < availableFood.size(); i++) {
         for (int i = 20; i < 100; i++) {
             Subsets s4 = new Subsets(i);
@@ -117,32 +121,6 @@ public class HamperCreator {
             System.err.println(i);
             System.err.println(duration);
         }
-
-        // // for (int i = ; i < 6; i++) {
-        // // System.out.println(i);
-        // // System.out.println(minExcessCalories);
-        // // possibleFoodCombinations =
-        // getPossibleFoodCombinations(this.availableFoodIndexes, i);
-        // // possibleFoodCombinations = s4.next();
-        // System.out.println(possibleFoodCombinations.size());
-        // for (Integer[] foodCombinationIndexes : possibleFoodCombinations) {
-        // // System.out.println(foodCombinationIndexes.length);
-        // if (satisfiesConstraints(foodCombinationIndexes)) {
-        // // System.out.println("satisfies");
-        // int excess = calculateExcess(foodCombinationIndexes); // get how wasteful
-        // this combo is
-        // if (excess < this.minExcessCalories) {
-        // this.minExcessCalories = excess;
-        // this.minExcessFoodIndexes = foodCombinationIndexes;
-        // }
-        // if (excess == 0) { // micro optimization: if perfect match is found then
-        // break early.
-        // return foodCombinationIndexes;
-        // }
-        // }
-        // }
-        // // }
-        // }
         return this.minExcessFoodIndexes; // todo change to return actual most efficient hamper
     }
 

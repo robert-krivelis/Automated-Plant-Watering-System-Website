@@ -1,26 +1,3 @@
-# Given a set of positive integers, and a target sum k, find the subset that sums to exactly k or least exceeds k. (i.e. equal or minimal overshoot)
-# def least_gt_subset_sum(items, k):
-#     vals = [None]*(k+1)
-#     vals[0] = ()
-#     best_v = None
-#     best_k = 0
-#     for item in items:
-#         for i in range(k-1, -1, -1):
-#             if vals[i] is not None:
-#                 if i + item <= k and vals[i+item] is None:
-#                     vals[i+item] = (*vals[i], item)
-#                 if i + item > k and (best_v is None or i + item < best_v):
-#                     best_v = i + item
-#                     best_k = (*vals[i], item)
-#     if vals[k] is not None:
-#         return vals[k]
-#     else:
-#         return best_k
-
-# items = []
-# least_gt_subset_sum(items, 2)
-from traceback import print_list
-
 item_list = [('Tomato Sauce, jar', 0, 80, 10, 10, 120),
              ('Tomato Sauce, jar', 0, 80, 10, 10, 120),
              ('Tomato Sauce, jar', 0, 80, 10, 10, 120),
@@ -262,209 +239,214 @@ short_item_list = [('Everything bagel, 6', 79, 0, 13, 8, 1440),
                    ('Granola cereal', 60, 0, 19, 21, 1260),
                    ('Black fungus, 200 g', 0, 77, 23, 0, 564)]
 
-category1 = [item[1] for item in short_item_list]
-category2 = [item[2] for item in short_item_list]
-category3 = [item[3] for item in short_item_list]
-category4 = [item[4] for item in short_item_list]
-
-cats = [category1, category2, category3, category4]
-for FoodCategory in cats:
-    print(sum(FoodCategory))
-# CAT1_OBJ = 1200
-# CAT2_OBJ = 1500
-# CAT3_OBJ = 900
-# CAT4_OBJ = 1500
-CAT_OBJS = [1200, 1500, 900, 1500]
-
-# itertools.zip
-most_wasteful_cat = 0
-most_wasteful_amount = sum(cats[0]) - CAT_OBJS[0]
-satisfies_constraints = lambda x,y: x - y
-changes_made = True  # keep track of changes. if you're able to remove something, do it
-
-
-
-# simple removing algo not guaranteed to be the _least_ wasteful but at least not garbage either. 
-# what we can do is just use it as an interface to the shit 
-# and then tomorrow what we need to do is implement the algo. 
-# create tests for functionality. 
-# create output text order form.
-# finish tying to gui. 
-# record a video of using the program.  
-# so anyways the exact algorithm u use for the program doesn't have to be that good as long as u have the rest of it down. and i need the rest of it down to get a decent mark in this class D:
-
-
-# Simple algorithm:
-# Start with all food in the hamper and conditionally remove food.
-# 1. Determine the FoodCategory (grain, veggies, prot, other) that has the most excess calories
-# 2. Attempt to remove a food from that category while still meeting requirements.
-    # 2a) if sucessful, go back to 1.
-    # 2a) if unsucessful, go to the next FoodCategory.
-# 3. If no more food can be removed, that's what your final hamper will be.
-
-# This algo is not guaranteed to be accurate. better to do a search algo. 
-
-
-for j in range(20): # for j? in range 
-    for i, (FoodCategory, CategoryObjective) in enumerate(zip(cats, CAT_OBJS)):
-        # print(sum(FoodCategory), CategoryObjective, i)
-        # print(sum(FoodCategory) - CategoryObjective)
-
-        # find which FoodCategory is the most wasteful and try to remove a food from that category
-        if sum(FoodCategory) - CategoryObjective > most_wasteful_amount:
-            most_wasteful_amount = sum(FoodCategory) - CategoryObjective
-            most_wasteful_cat = i
-
-# print("wasteful:", most_wasteful_cat, most_wasteful_amount)
-
-
 import random
 import math
-print(cats)
 
-max_cost = sum(cats[0]) + sum(cats[1]) + sum(cats[2]) + sum(cats[3]) - sum(CAT_OBJS)
+available_food = []
 
-def simulated_annealing(domain, costf, temp=10000.0, cool=0.95, step=1):
+# Convert items to calories. so ('Black fungus, 200 g', 0, 77, 23, 0, 564) becomes [0.0, 434.28, 129.72, 0.0]
+for item in item_list:
+    cal_converted_item = [percent * item[5] / 100 for percent in item[1:5]]
+    available_food.append(cal_converted_item)
+
+max_cals_by_category = [sum(food) for food in available_food]
+max_cals = sum(max_cals_by_category)
+foodTargetsByCategory = [
+    max_cals_by_category[0] * .8, max_cals_by_category[1] * .8,
+    max_cals_by_category[2] * .8, max_cals_by_category[3] * .8
+]
+
+print('available', max_cals_by_category, 'targets', foodTargetsByCategory)
+
+wasted_calories_max = max_cals
+wasted_calories_min = [max_cals] # will change with annealing
+best_sol = [available_food] # will change with annealing
+
+
+
+def simulated_annealing(
+    available_food,
+    costf,
+    temp=10000.0,
+    cool=0.999,
+    min_temp=0.01,
+):
     """simulated annealing optimization algorithm that takes a cost function and tries to minimize it by
        looking for solutions from the given domain
        requirements: is to define the costf which is needed to be minimized for error functions
        and domain which is a random solution to begin with"""
 
-    # initialize the values randomly
-    current_sol = [[cat,random.randint(0,1)] for cat in cats]
-    while temp > 0.1:
-        # choose one of the indices
-        i = random.randint(0, len(domain) - 1)
+    # Initialize hamper food with roughly the same number of items of food as the result requires
+    # Percentage of items needed is roughly target_cals/total_cals
+    item_percentage_roughly = sum(foodTargetsByCategory) / max_cals * 100
 
-        # choose a direction to change it
-        included_excluded = random.randint(0,1)
+    current_hamper = [
+        food for food in available_food
+        if random.randint(0, 100) <= item_percentage_roughly
+    ]
 
-        # create a new list with one of the values changed
+    for food in current_hamper: # adjust available food according to what was added to the hamper
+        available_food.remove(food)
+
+    print('starting hamper len', len(current_sol))
+    print('starting food len', len(available_food))
+
+    while temp > min_temp:
+        new_sol, new_available_food = neighbor(current_sol, available_food)
+        # flip a coin to see whether to add or remove a food item to/from hamper
+        add = bool(random.randint(0, 1))
+        if len(current_sol) == 0:  # current_hamper = empty
+            add = True
+        elif len(available_food) == 0:
+            add = False
+        if not check_valid(current_sol):
+            add = True
+
+        # create copies of the current hamper and food
         new_sol = current_sol[:]
-        new_sol[i][1] = included_excluded
-        # if new_sol[i] < domain[i][0]: new_sol[i] = domain[i][0]
-        # elif new_sol[i] > domain[i][1]: new_sol[i] = domain[i][1]
+        new_available_food = available_food[:]
 
+        # if coinflip succeeds add to current
+        if add:
+            # select random food to add to hamper
+            i = random.randint(0, len(new_available_food) - 1)
+            food = new_available_food[i]
+
+            # add food to hamper and remove it from available food
+            new_sol.append(food)
+            new_available_food.remove(food)
+        # if coinflip fails remove from current
+
+        elif not add:
+            # select random food to remove from hamper
+            i = random.randint(0, len(new_sol) - 1)
+            food = new_sol[i]
+
+            # remove food to hamper and add it to available food
+            new_available_food.append(food)
+            new_sol.remove(food)
+
+        if bool(random.randint(0,1)): # half the time randomly swap two foods
+            # select random foods to swap
+            i = random.randint(0, len(new_available_food) - 1)
+            food1 = new_available_food[i]
+            j = random.randint(0, len(new_sol) - 1)
+            food2 = new_sol[j]
+
+            # swap foods
+            new_sol.append(food1)
+            new_available_food.remove(food1)
+            new_sol.remove(food2)
+            new_available_food.append(food2)
+
+        # if coinflip fails remove from current
         # calculate the current cost and the new cost
-        current_cost = costf(current_sol,CAT_OBJS)
-        new_cost = costf(new_sol, CAT_OBJS)
+        current_cost = costf(current_sol, foodTargetsByCategory)
+        new_cost = costf(new_sol, foodTargetsByCategory)
+        # if new_cost < wasted_calories_min[0]:
+        #     wasted_calories_min[0] = new_cost
+        # best_sol[0] = new_sol[:]
         #p = pow(math.e, (- new_cost - current_cost) / temp)
         p = math.e**((-new_cost - current_cost) / temp)
 
         # is it better, or does it make the probability
         # cutoff?
         if (new_cost < current_cost or random.random() < p):
-            current_sol = new_sol
-            print(new_cost)
+            # print(new_cost)
+            current_sol = new_sol[:]
+            available_food = new_available_food[:]
+        if new_cost < min_cost:
+            min_cost = new_cost
+            min_solution = new_sol
 
         # decrease the temperature
         temp = temp * cool
-    return current_sol
+    print('MIN COST ', min_cost)
+    # print('MIN sol ', min_solution, len(min_solution))
+    return min_solution
+
 
 def check_valid(hampers_to_sum):
-    for i in range(1,4):
-    hampers_to_sum 
+    for i in range(0, len(foodTargetsByCategory)
+                   ):  # number of foodCategories (fruit,veg,prot,other)
+        calsOfCategory = [food[i] for food in hampers_to_sum]
+        if sum(calsOfCategory
+               ) < foodTargetsByCategory[i]:  # if less than target
+            return False  # return not valid
+    return True  # else return valid
 
-def costf(current_sums, targets=CAT_OBJS):
+
+def costf(hampers_to_sum, targets=foodTargetsByCategory):
+    if not check_valid(hampers_to_sum):
+        cost = wasted_calories_max
+        return cost
 
     waste = 0
-    for i in range(len(CAT_OBJS)):
-        # print("!!!!!!!!!!!!!!!!!!!!!!!", targets[i])
-        waste+= sum(current_sums[i][0])-targets[i]
-    print(waste)
+    for i in range(len(foodTargetsByCategory)):
+        calsOfCategory = [food[i] for food in hampers_to_sum]
+        waste += sum(calsOfCategory) - targets[i]
+    if waste < 0: # this is a bandaid. waste of 0 shouldn't happen.
+        waste = wasted_calories_max
     return waste
-    # return sol - calories
-only_important = [item[1:5] for item in short_item_list]
-# print(only_important)
-# print (simulated_annealing(domain=cats, costf=costf, temp=10000.0, cool=0.95, step=1))
+
+def neighbor(current_sol, available_food):
+    # change the current solution slightly.
+    # 50% chance to swap items, 50% chance to simply add or remove an item
+    new_sol = current_sol
+    new_available_food = available_food
+    # flip a coin to see whether to swap items
+    swap = bool(random.randint(0, 1))
+    if swap:
+        # select random foods to swap
+        i = random.randint(0, len(new_available_food) - 1)
+        food1 = new_available_food[i]
+        j = random.randint(0, len(new_sol) - 1)
+        food2 = new_sol[j]
+
+        # swap foods
+        new_sol.append(food1)
+        new_available_food.remove(food1)
+        new_sol.remove(food2)
+        new_available_food.append(food2)
+    else:
+        add = bool(random.randint(0, 1))
+        
+        # check for edge cases where hamper or available food is empty
+        if (len(new_sol) == 0 ):  # if current_hamper is empty must add food to hamper 
+            add = True
+        elif len(new_available_food) == 0: # if available_food is empty must remove food from hamper
+            add = False    
+        
+        # if coinflip succeeds add to current
+        if add:
+            # select random food to add to hamper
+            i = random.randint(0, len(new_available_food) - 1)
+            food = new_available_food[i]
+
+            # add food to hamper and remove it from available food
+            new_sol.append(food)
+            new_available_food.remove(food)
+        # if coinflip fails remove from current
+        else:
+            # select random food to remove from hamper
+            i = random.randint(0, len(new_sol) - 1)
+            food = new_sol[i]
+
+            # remove food to hamper and add it to available food
+            new_available_food.append(food)
+            new_sol.remove(food)
+    return new_sol, new_available_food
+
+# for i in range(3):
+best = simulated_annealing(available_food=available_food,
+                        costf=costf,
+                        cool=0.999)
+print("returned val:", costf(best))
 
 
-
-
-
-
-
-
-
-
-# def most_wasteful():
-
-# Ok so the algorithm is pretty simple.
-# Objective: Get the least wasteful (calorie wise) combination of food while still meeting the calorie requirements
-# Brute force solution, broad:
-# 1. create a list of all combinations of food that calories_sum > calories_req
-# 2. sort list by calories_sum
-# 3. check if satisfies individual category requirements
-#
-# sort all the combinations of food by total calories. starting at total_calories = calories_req, check if that combination
-#
-#
-#
-#  Use combinationSum2 solution (https://leetcode.com/problems/combination-sum-ii/) to find all unique combinations in a list where the list numbers sum to target
-# 1. Find out
-
-# select any one combination if equally wasteful
-
-# l2 = [item[1:] for item in item_list]
-# for item in l2:
-#     print(str(list(item)) + ',')
-# print('\n'.join(str(l2)))
-# print(('",\n' + '"').join(l2))
-
-# grains = [item[1] for item in item_list]
-# # grains.sort()
-# # print(grains)
-# import itertools
-# # grains = [grain for grain in grains if grain!=0]
-
-# grains = grains[-10:]
-# stuff = [1, 2, 3]
-# vals = set()
-# for L in range(0, len(grains)+1):
-#     for subset in itertools.combinations(grains, L):
-#         if sum(subset)>1:
-#             vals.add(sum(subset))
-# val_list = list(vals)
-# val_list.sort()
-# print(val_list)
-# # print([val for val in vals if val > 50])
-
-# def combinationSum2(candidates, target):
-#     candidates.sort()
-#     res = []
-#     def backtrack(cur, pos, target):
-#         if target == 0:
-#             res.append(cur.copy())
-#         if target <= 0:
-#             return
-
-#         prev = -1
-#         for i in range(pos, len(candidates)):
-#             if candidates[i] == prev:
-#                 continue
-#             cur.append(candidates[i])
-#             backtrack(cur, i + 1, target - candidates[i])
-#             cur.pop()
-#             prev = candidates[i]
-
-#     backtrack([], 0, target)
-#     return res
-
-# print(combinationSum2(grains, 60))
-
-# a lot of the values equal zero. my algos are bad
-# but that's fine i think, we just keep the 0s in there
-# this algorithm in python can run even though python is a slow language.
-# obviously we're looking for exactly one value but thats fine
-
-# import itertools
-
-# numbers = [1, 2, 3, 7, 7, 9, 10]
-# print(itertools.combinations(numbers, 3))
-# target = 10
-
-# result = [seq for i in range(len(numbers), 0, -1)
-#           for seq in itertools.combinations(numbers, i)
-#           if sum(seq) > target]
-
-# print(result)
+# best so far around 147.8 ..
+# print(best)
+# print("food items:", len(best), "wasted cals:", costf(best))
+# print( "iterations", len(coin_results))
+# print(len([r for r in coin_results if r]) / len(coin_results))
+# print("food items:", len(best_sol), "wasted cals:", costf(best_sol))

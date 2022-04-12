@@ -15,11 +15,23 @@ public class Hamper {
     // adds food and updates calorie information
     public void addFood (Food addedFood) {
         hamperFood.add(addedFood);
+        HamperCreator.availableFood.remove(addedFood); // remove food from available food
         totWholeGrainsInHamper += addedFood.getWholeGrains();
         totFruitVeggiesInHamper += addedFood.getFruitVeggies();
         totProteinInHamper += addedFood.getProtein();
         totOtherInHamper += addedFood.getOther();
         totCaloriesInHamper += addedFood.getCalories();
+    }
+    
+    public void removeFood(Food removedFood) {
+        hamperFood.remove(removedFood);
+        HamperCreator.availableFood.add(removedFood); // add food back to available food 
+        totWholeGrainsInHamper += removedFood.getWholeGrains();
+        totFruitVeggiesInHamper += removedFood.getFruitVeggies();
+        totProteinInHamper += removedFood.getProtein();
+        totOtherInHamper += removedFood.getOther();
+        totCaloriesInHamper += removedFood.getCalories();
+        
     }
     // returns a list of food items in the hamper
     public String formattedFoodInHamper() {
