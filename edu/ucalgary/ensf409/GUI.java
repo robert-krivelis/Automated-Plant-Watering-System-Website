@@ -168,7 +168,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     }
 
     private void callCreateHampers() {
-        // this function is key because it gives us a loading screen as our algorithm works to get the best solution
+        // this function is key because it gives us a loading screen as our algorithm
+        // works to get the best solution
         this.getContentPane().removeAll();
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -186,8 +187,6 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         reset();
 
     }
-
-
 
     private void reset() {
         this.dispose(); // close current window
@@ -243,14 +242,15 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
             hamperClients.add(childrenUnderEight);
             int childrenOverEight = Integer.valueOf(childrenUnderEightInput.get(hamperNumber).getText());
             hamperClients.add(childrenOverEight);
-            this.allClientTypesFromUser.add(hamperClients); // add it to output
+            System.out.println(hamperClients);
+            ClientTypesFromUser.add(hamperClients); // add it to output
         }
         return ClientTypesFromUser;
     }
 
     private boolean validateHamperInputs() {
         String text;
-
+        boolean atLeastOneClient = false;
         // Create a 2D array of the hamper inputs
         ArrayList<ArrayList<JTextField>> hamperInputs = new ArrayList<ArrayList<JTextField>>();
         hamperInputs.add(adultMalesInput);
@@ -285,13 +285,17 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
                     JOptionPane.showMessageDialog(this, errMsg);
                     return false;
                 }
-
+                if (Integer.valueOf(text) != 0) {
+                    atLeastOneClient = true;
+                }
             }
-
+            if (!atLeastOneClient) {
+                String errMsg = "Must have at least one client in hamper";
+                JOptionPane.showMessageDialog(this, errMsg);
+                return false;
+            }
         }
-
         return true;
-
     }
 
     public static void main(String[] args) {

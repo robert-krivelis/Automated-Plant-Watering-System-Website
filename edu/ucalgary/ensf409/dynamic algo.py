@@ -197,10 +197,10 @@ class HamperSolver:
             self.max_cals_by_category[2] * .8,
             self.max_cals_by_category[3] * .8
         ]
-        self.wasted_calories_max = sum(self.max_cals_by_category) - sum(
+        self.excessCaloriesMax = sum(self.max_cals_by_category) - sum(
             self.foodTargetsByCategory)
 
-        self.wasted_calories_min = self.max_cals  # will change with annealing
+        self.excessCaloriesMin = self.max_cals  # will change with annealing
         self.best_sol = self.available_food.copy()  # will change with annealing
 
     def simulated_annealing(
@@ -223,11 +223,11 @@ class HamperSolver:
         #     if random.randint(0, 100) <= item_percentage_roughly
         # ]
 
-        current_sol = self.available_food.copy()
+        currentSolution = self.available_food.copy()
         # keep track of best solution so far
-        self.best_sol = current_sol.copy()
+        self.best_sol = currentSolution.copy()
 
-        for food in current_sol:  # adjust available food according to what was added to the hamper
+        for food in currentSolution:  # adjust available food according to what was added to the hamper
             self.available_food.remove(food)
 
         # print(' hamper len', len(current_sol))
@@ -237,32 +237,32 @@ class HamperSolver:
 
         while temp > min_temp:
             # change the existing solution slightly
-            new_sol, new_available_food = self.neighbor(
-                current_sol.copy())
+            newSolution, newFoodSimpleArray = self.neighbor(
+                currentSolution.copy())
 
             # calculate the current cost and the new cost
-            new_cost = self.costf(new_sol)
-            current_cost = self.costf(current_sol)
+            new_cost = self.costf(newSolution)
+            current_cost = self.costf(currentSolution)
 
             # calculate probability cutoff
             p = math.e**((-new_cost - current_cost) / temp)
 
             # is it better, or does it make the probability cutoff?
             if (new_cost < current_cost or random.random() < p):
-                current_sol = new_sol.copy()
-                self.available_food = new_available_food.copy()
+                currentSolution = newSolution.copy()
+                self.available_food = newFoodSimpleArray.copy()
                 # print('new cost', new_cost)
 
             # my code for calculating best so far
-            if new_cost < self.wasted_calories_min:
-                self.wasted_calories_min = new_cost
-                self.best_sol = new_sol
+            if new_cost < self.excessCaloriesMin:
+                self.excessCaloriesMin = new_cost
+                self.best_sol = newSolution
 
             # decrease the temperature
             temp = temp * cool
         # print('MIN COST ', min_cost)
         # print('MIN sol ', min_solution, len(min_solution))
-        return current_sol
+        return currentSolution
 
     def check_valid(self, hampers_to_sum):
         for i in range(0, len(self.foodTargetsByCategory)
@@ -275,7 +275,7 @@ class HamperSolver:
 
     def costf(self, hampers_to_sum):
         if not self.check_valid(hampers_to_sum):
-            cost = self.wasted_calories_max
+            cost = self.excessCaloriesMax
             return cost
 
         waste = 0
@@ -347,8 +347,8 @@ for i in range(20):
     best = hamper.simulated_annealing(cool=0.999, min_temp=0.0001)
     print(hamper.costf(best))
     sols.append(hamper.best_sol)
-    sol_waste.append(hamper.wasted_calories_min)
-    
+    sol_waste.append(hamper.excessCaloriesMin)
+
 best_index = sol_waste.index(min(sol_waste))
 print(min(sol_waste), best_index)
 print(sols[best_index])
