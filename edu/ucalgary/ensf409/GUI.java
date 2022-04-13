@@ -15,15 +15,13 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.event.*;
-import java.net.URL;
 import java.util.*;
 import java.awt.*;
 
-public class Main extends JFrame implements ActionListener, MouseListener {
+public class GUI extends JFrame implements ActionListener, MouseListener {
 
-    public ArrayList<ArrayList<Integer>> allClientTypesFromUser = new ArrayList<ArrayList<Integer>>();
+    public ArrayList<ArrayList<Integer>> allClientTypesFromUser;
     private JLabel instructions;
-
     private int numberOfHampersVisible = 0;
 
     // STORE LABELS HERE
@@ -32,11 +30,6 @@ public class Main extends JFrame implements ActionListener, MouseListener {
     private ArrayList<JLabel> adultFemalesLabel = new ArrayList<JLabel>();
     private ArrayList<JLabel> childrenOverEightLabel = new ArrayList<JLabel>();
     private ArrayList<JLabel> childrenUnderEightLabel = new ArrayList<JLabel>();
-
-    // private JLabel adultMalesLabel;
-    // private JLabel adultFemalesLabel;
-    // private JLabel childrenOverEightLabel;
-    // private JLabel childrenUnderEightLabel;
 
     // STORE INPUT VALUES HERE
     private ArrayList<JTextField> adultMalesInput = new ArrayList<JTextField>();
@@ -47,7 +40,7 @@ public class Main extends JFrame implements ActionListener, MouseListener {
     private JPanel clientPanel;
     private JPanel submitPanel;
 
-    public Main() {
+    public GUI() {
         super("Hamper Order Form "); // extends Jframe - sets the title of the window
         setupGUI(); // create GUI
         setSize(500, 300); // sets window size
@@ -158,25 +151,24 @@ public class Main extends JFrame implements ActionListener, MouseListener {
     }
 
     private class buttonListener implements ActionListener {
-
+        // created the method like this to get seperate button actions
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            if (!validateHamperInputs()) {
-                return;
-            }
-            callCreateHampers();
-            // dlg.setModal(false);
-            // dialog = JOptionPane.createDialog("Finding best combinations of food
-            // ...");//showMessageDialog(null, "Finding best combinations of food ...");
-            // reset();
+            submitButtonClicked();
 
         }
+    }
 
+    private void submitButtonClicked() {
+        if (!validateHamperInputs()) {
+            return;
+        }
+        this.allClientTypesFromUser = inputProcessing();
+        callCreateHampers();
     }
 
     private void callCreateHampers() {
-
+        // this function is key because it gives us a loading screen as our algorithm works to get the best solution
         this.getContentPane().removeAll();
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -187,14 +179,20 @@ public class Main extends JFrame implements ActionListener, MouseListener {
         this.repaint();
 
         // DO WORK HERE
+        HamperCreator(this.allClientTypesFromUser);
+
+
         JOptionPane.showMessageDialog(this, "Order Complete! Press OK to make additional orders.");
         reset();
 
     }
 
+    private void HamperCreator(ArrayList<ArrayList<Integer>> allClientTypesFromUser2) {
+    }
+
     private void reset() {
         this.dispose(); // close current window
-        new Main().setVisible(true); // start up new window
+        new GUI().setVisible(true); // start up new window
 
     }
 
@@ -234,21 +232,25 @@ public class Main extends JFrame implements ActionListener, MouseListener {
 
     }
 
-    private String inputProcessing() {
-
-        // String petID = new String(String.valueOf(adultMales.charAt(0)) +
-        // String.valueOf(adultFemales.charAt(0))
-        // + String.valueOf(childrenOverEight.charAt(0)) +
-        // String.valueOf(childrenUnderEight));
-
-        // return petID;
-        return "NOT IMPLEMENTED";
+    private ArrayList<ArrayList<Integer>> inputProcessing() {
+        ArrayList<ArrayList<Integer>> ClientTypesFromUser = new ArrayList<ArrayList<Integer>>();
+        for (int hamperNumber = 0; hamperNumber < this.numberOfHampersVisible; hamperNumber++) {
+            ArrayList<Integer> hamperClients = new ArrayList<Integer>();
+            int males = Integer.valueOf(adultMalesInput.get(hamperNumber).getText());
+            hamperClients.add(males);
+            int females = Integer.valueOf(adultFemalesInput.get(hamperNumber).getText());
+            hamperClients.add(females);
+            int childrenUnderEight = Integer.valueOf(childrenOverEightInput.get(hamperNumber).getText());
+            hamperClients.add(childrenUnderEight);
+            int childrenOverEight = Integer.valueOf(childrenUnderEightInput.get(hamperNumber).getText());
+            hamperClients.add(childrenOverEight);
+            this.allClientTypesFromUser.add(hamperClients); // add it to output
+        }
+        return ClientTypesFromUser;
     }
-
 
     private boolean validateHamperInputs() {
         String text;
-        ArrayList<Integer> clientTypeFromUser = new ArrayList<Integer>();
 
         // Create a 2D array of the hamper inputs
         ArrayList<ArrayList<JTextField>> hamperInputs = new ArrayList<ArrayList<JTextField>>();
@@ -258,8 +260,9 @@ public class Main extends JFrame implements ActionListener, MouseListener {
         hamperInputs.add(childrenUnderEightInput);
 
         for (int clientType = 0; clientType < 4; clientType++) {
-            // not really sure what to call this, but it's an array across the hampers of the adultMale/adultFemale/children numbers.
-            ArrayList<JTextField> adultMalesForExample = hamperInputs.get(clientType); 
+            // not really sure what to call this, but it's an array across the hampers of
+            // the adultMale/adultFemale/children numbers.
+            ArrayList<JTextField> adultMalesForExample = hamperInputs.get(clientType);
 
             for (int hamperNumber = 0; hamperNumber < this.numberOfHampersVisible; hamperNumber++) {
                 text = adultMalesForExample.get(hamperNumber).getText();
@@ -295,7 +298,7 @@ public class Main extends JFrame implements ActionListener, MouseListener {
     public static void main(String[] args) {
 
         EventQueue.invokeLater(() -> {
-            new Main().setVisible(true);
+            new GUI().setVisible(true);
         });
     }
 

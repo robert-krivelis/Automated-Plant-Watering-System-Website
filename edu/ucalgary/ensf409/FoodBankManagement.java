@@ -3,6 +3,9 @@ package edu.ucalgary.ensf409;
 import java.util.Arrays;
 
 public class FoodBankManagement {
+    public FoodBankManagement(){
+        
+    }
     public static void main(String[] args) {
         // creates hamper creator object and inputs client configuration for the hamper
         HamperCreator createdHamper = new HamperCreator(0, 0, 0, 1); // AM AF CO8 CU8
