@@ -46,6 +46,27 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         setSize(500, 300); // sets window size
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    
+    private void callCreateHampers() {
+        // this function is key because it gives us a loading screen as our algorithm
+        // works to get the best solution
+        this.getContentPane().removeAll();
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        headerPanel.add(new JLabel("Working... Please wait."));
+        this.add(headerPanel);
+        this.revalidate();
+        this.validate();
+        this.repaint();
+
+        // DO WORK HERE
+        FoodBankManager manager = new FoodBankManager(this.allClientTypesFromUser);
+        // END OF WORK
+
+        JOptionPane.showMessageDialog(this, "Order Complete! Press OK to make additional orders.");
+        reset();
+
+    }
 
     public void addNewHamper() {
         // create additional hamper
@@ -167,26 +188,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         callCreateHampers();
     }
 
-    private void callCreateHampers() {
-        // this function is key because it gives us a loading screen as our algorithm
-        // works to get the best solution
-        this.getContentPane().removeAll();
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        headerPanel.add(new JLabel("Working... Please wait."));
-        this.add(headerPanel);
-        this.revalidate();
-        this.validate();
-        this.repaint();
 
-        // DO WORK HERE
-        FoodBankManager manager = new FoodBankManager(this.allClientTypesFromUser);
-        // END OF WORK
-
-        JOptionPane.showMessageDialog(this, "Order Complete! Press OK to make additional orders.");
-        reset();
-
-    }
 
     private void reset() {
         this.dispose(); // close current window

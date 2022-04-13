@@ -15,7 +15,11 @@ public class FoodBankManager {
         this.allFood = foodDB.getAllFood();
         this.clientRequirementsByType = foodDB.getClientRequirementsByType();
     }
-
+    public void useAlgorithm(){
+        ArrayList<Integer> firstClient = allClientTypesFromUser.get(0);
+        FoodSelectionAlgorithm foodAlgo = new FoodSelectionAlgorithm(
+                firstClient, this.allFood, this.clientRequirementsByType);
+    }
     public void generateOrder() {
         for (ArrayList<Integer> hamperClients : this.allClientTypesFromUser) {
             try {

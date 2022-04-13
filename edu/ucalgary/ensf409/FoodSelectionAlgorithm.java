@@ -10,7 +10,7 @@ public class FoodSelectionAlgorithm {
     private ArrayList<Food> allFood;
 
     // private HashMap<String, Integer> maxCaloriesInEachCategory;
-    private ArrayList<Integer> maxCaloriesInEachCategory;
+    private ArrayList<Integer> maxCaloriesInEachCategory = new ArrayList<Integer>();
     private ArrayList<Integer> calorieTargetsForEachCategory;
     private int excessCaloriesMax; // calories in all food - targets
     private int maxCalories; // calories in all food
@@ -58,10 +58,10 @@ public class FoodSelectionAlgorithm {
     private ArrayList<Integer> calculateMaxCaloriesInEachCategory() {
         ArrayList<Integer> cals = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0));
         for (Food food : this.allFood) {
-            this.maxCaloriesInEachCategory.set(0, this.maxCaloriesInEachCategory.get(0) + food.getWholeGrains());
-            this.maxCaloriesInEachCategory.set(1, this.maxCaloriesInEachCategory.get(1) + food.getFruitVeggies());
-            this.maxCaloriesInEachCategory.set(2, this.maxCaloriesInEachCategory.get(2) + food.getProtein());
-            this.maxCaloriesInEachCategory.set(3, this.maxCaloriesInEachCategory.get(3) + food.getOther());
+            cals.set(0, cals.get(0) + food.getWholeGrains());
+            cals.set(1, cals.get(1) + food.getFruitVeggies());
+            cals.set(2, cals.get(2) + food.getProtein());
+            cals.set(3, cals.get(3) + food.getOther());
         }
         return cals;
     }
@@ -78,10 +78,10 @@ public class FoodSelectionAlgorithm {
         ArrayList<ArrayList<Integer>> caloriesFullArray = new ArrayList<ArrayList<Integer>>();
         for (Food food : foodArray) {
             ArrayList<Integer> caloriesCategoriesArray = new ArrayList<Integer>();
-            caloriesCategoriesArray.set(0, food.getWholeGrains());
-            caloriesCategoriesArray.set(1, food.getFruitVeggies());
-            caloriesCategoriesArray.set(2, food.getProtein());
-            caloriesCategoriesArray.set(3, food.getOther());
+            caloriesCategoriesArray.add(food.getWholeGrains());
+            caloriesCategoriesArray.add(food.getFruitVeggies());
+            caloriesCategoriesArray.add(food.getProtein());
+            caloriesCategoriesArray.add(food.getOther());
             caloriesFullArray.add(caloriesCategoriesArray);
         }
         return caloriesFullArray;
