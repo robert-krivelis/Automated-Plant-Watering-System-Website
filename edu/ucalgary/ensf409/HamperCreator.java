@@ -86,43 +86,13 @@ public class HamperCreator {
                 .toArray(Integer[]::new); // creates an integer range from 0 up to length availableFood.size()
         this.minExcessCalories = totCalories;
         this.minExcessFoodIndexes = availableFoodIndexes;
-        
-        
-        // // first value for foodIndexesByExcessCalories is maxCalories and .........
-        // this is actualy worthless just leave it null
-        // foodIndexesByExcessCalories = new HashMap<Integer, Integer[]>();
-        // Integer[] availableFoodIndexes = IntStream.rangeClosed(1,
-        // availableFood.size()).boxed().collect(Collectors.toList()).toArray(Integer[]::new);
-        // foodIndexesByExcessCalories.put(Integer.valueOf(totCalories),
-        // availableFoodIndexes);
+
     }
 
     public int getMinExcessCalories() {
         return this.minExcessCalories;
     }
 
-
-
-    public Integer[] bruteForceMostEfficientHamper() {
-        // brute force O(n!) time
-        // for (int i = 0; i < availableFood.size(); i++) {
-        for (int i = 20; i < 100; i++) {
-            Subsets s4 = new Subsets(i);
-            // int[] a;
-            long startTime = System.nanoTime();
-
-            while (s4.hasNext()) {
-                s4.next();
-                // System.err.print(s4.next());
-            }
-            long endTime = System.nanoTime();
-
-            long duration = (endTime - startTime) / 1000000; // divide by 1000000 to get milliseconds.
-            System.err.println(i);
-            System.err.println(duration);
-        }
-        return this.minExcessFoodIndexes; // todo change to return actual most efficient hamper
-    }
 
     private int calculateExcess(Integer[] foodCombinationIndexes) {
         // given an array of foodIndexes, calculate and return how many more calories
@@ -168,22 +138,7 @@ public class HamperCreator {
 
     }
 
-    private ArrayList<Integer[]> getPossibleFoodCombinations(Integer[] availableFoodIndexes, int numberOfFoodItems) {
-        /*
-         * Returns all possible food combinations of length numberOfFoodItems
-         * 
-         * Examples:
-         * --------
-         * availableFoodIndexes = [0, 1] and numberOfFoodItems = 2:
-         * returns [[0,1]]
-         * availableFoodIndexes = [0, 1, 2] and numberOfFoodItems = 2:
-         * returns [[0,1], [0,2], [1,2]]
-         */
-        Combinations indexCombinations = new Combinations();
-        indexCombinations.recursiveCreateCombinations(this.availableFoodIndexes,
-                numberOfFoodItems, 0, new Integer[numberOfFoodItems]);
-        return indexCombinations.getAllCombinations();
-    }
+    
 
     // 2. check if combination satisfies requirements
     public boolean isConstraintsSatisfied() {
