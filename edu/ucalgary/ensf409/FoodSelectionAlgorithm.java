@@ -3,6 +3,7 @@ package edu.ucalgary.ensf409;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class FoodSelectionAlgorithm {
     private Hamper hamper = new Hamper();
@@ -33,7 +34,7 @@ public class FoodSelectionAlgorithm {
     }
 
     private ArrayList<Integer> calculateCalorieTargetsForEachCategory(ArrayList<ClientTypes> clientRequirementsByType) {
-        ArrayList<Integer> calorieTargets = new ArrayList<Integer>(); // will be size 4
+        
         int numOfDaysInWeek = 7;
         // for each category (0=grains,1=veg,2=prot,3=other), sum the calorie
         // requirements for the entire family (this.hamperClientsByType) and store it in
@@ -44,59 +45,38 @@ public class FoodSelectionAlgorithm {
         int numChildOverEight = this.hamperClientsByType.get(2);
         int numChildUnderEight = this.hamperClientsByType.get(3);
 
-        int requiredForAdultMale = clientRequirementsByType.get(0).getWholeGrains();
-        int requiredForAdultFemale = clientRequirementsByType.get(1).getWholeGrains();
-        int requiredForChildOverEight = clientRequirementsByType.get(2).getWholeGrains();
-        int requiredForUnderEight = clientRequirementsByType.get(3).getWholeGrains();
-
-        for (int clientType = 0; clientType < 4; clientType++) {
-            int grainRequirement = clientRequirementsByType.get(clientType).getWholeGrains();
-            int fruitVeggiesRequirement = clientRequirementsByType.get(clientType).getFruitVeggies();
-            int proteinRequirement = clientRequirementsByType.get(clientType).getProtein();
-            int otherRequirement = clientRequirementsByType.get(clientType).getOther();
-                    
-            int numOfClientsOfType = this.hamperClientsByType.get(clientType);
-            calorieTargets.set(0, grainRequirement);
-
-
-            int singleClientRequirement = clientRequirementsByType.get(clientType);
-            int numberOfClientsOfType = this.hamperClientsByType.get(clientType);
-            int totalCalsRequiredForType = singleClientRequirement.getWholeGrains()
-                    * this.hamperClientsByType.get(clientType);
-            calorieTargets.set(clientType, totalCalsForType);
-
-        }
+        int targetWholeGrains = 0;
+        int targetFruitVeggies = 0;
+        int targetProtein = 0;
+        int targetOther = 0;
         // needed whole grains
-        totWholeGrains += clientRequirementsByType.get(0).getWholeGrains() * adultMales
-                + clientRequirementsByType.get(1).getWholeGrains() * adultFemales
-                + clientRequirementsByType.get(2).getWholeGrains() * childOverEight
-                + clientRequirementsByType.get(3).getWholeGrains() * childUnderEight;
+        targetWholeGrains += clientRequirementsByType.get(0).getWholeGrains() *numAdultMales
+                + clientRequirementsByType.get(1).getWholeGrains() * numAdultFemales
+                + clientRequirementsByType.get(2).getWholeGrains() * numChildOverEight
+                + clientRequirementsByType.get(3).getWholeGrains() * numChildUnderEight;
         // needed fruit veggies
-        totFruitVeggies += clientRequirementsByType.get(0).getFruitVeggies() * adultMales
-                + clientRequirementsByType.get(1).getFruitVeggies() * adultFemales
-                + clientRequirementsByType.get(2).getFruitVeggies() * childOverEight
-                + clientRequirementsByType.get(3).getFruitVeggies() * childUnderEight;
+        targetFruitVeggies += clientRequirementsByType.get(0).getFruitVeggies() *numAdultMales
+                + clientRequirementsByType.get(1).getFruitVeggies() * numAdultFemales
+                + clientRequirementsByType.get(2).getFruitVeggies() * numChildOverEight
+                + clientRequirementsByType.get(3).getFruitVeggies() * numChildUnderEight;
         // needed protein
-        totProtein += clientRequirementsByType.get(0).getProtein() * adultMales
-                + clientRequirementsByType.get(1).getProtein() * adultFemales
-                + clientRequirementsByType.get(2).getProtein() * childOverEight
-                + clientRequirementsByType.get(3).getProtein() * childUnderEight;
+        targetProtein += clientRequirementsByType.get(0).getProtein() *numAdultMales
+                + clientRequirementsByType.get(1).getProtein() * numAdultFemales
+                + clientRequirementsByType.get(2).getProtein() * numChildOverEight
+                + clientRequirementsByType.get(3).getProtein() * numChildUnderEight;
         // needed other
-        totOther += clientRequirementsByType.get(0).getOther() * adultMales
-                + clientRequirementsByType.get(1).getOther() * adultFemales
-                + clientRequirementsByType.get(2).getOther() * childOverEight
-                + clientRequirementsByType.get(3).getOther() * childUnderEight;
-        // needed total calories
-        totCalories += clientRequirementsByType.get(0).getCalories() * adultMales
-                + clientRequirementsByType.get(1).getCalories() * adultFemales
-                + clientRequirementsByType.get(2).getCalories() * childOverEight
-                + clientRequirementsByType.get(3).getCalories() * childUnderEight;
-
-        totWholeGrains = totWholeGrains * numOfDaysInWeek;
-        totFruitVeggies = totFruitVeggies * numOfDaysInWeek;
-        totProtein = totProtein * numOfDaysInWeek;
-        totOther = totOther * numOfDaysInWeek;
-        totCalories = totCalories * numOfDaysInWeek;
+        targetOther += clientRequirementsByType.get(0).getOther() *numAdultMales
+                + clientRequirementsByType.get(1).getOther() * numAdultFemales
+                + clientRequirementsByType.get(2).getOther() * numChildOverEight
+                + clientRequirementsByType.get(3).getOther() * numChildUnderEight;
+    
+        targetWholeGrains *= numOfDaysInWeek;
+        targetFruitVeggies *= numOfDaysInWeek;
+        targetProtein *= numOfDaysInWeek;
+        targetOther *= numOfDaysInWeek;
+        List<Integer> targets = Arrays.asList(targetWholeGrains, targetFruitVeggies, targetProtein, targetOther);
+        ArrayList<Integer> calorieTargets = new ArrayList<Integer>(targets); // will be size 4
+        return calorieTargets;
     }
 
 }
