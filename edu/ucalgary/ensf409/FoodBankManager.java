@@ -21,9 +21,12 @@ public class FoodBankManager {
         // System.out.println(this.allFood.size());
         // System.out.println(this.clientRequirementsByType);
         try {
+
             FoodSelectionAlgorithm foodAlgo = new FoodSelectionAlgorithm(
                     firstClient, this.allFood, this.clientRequirementsByType);
+
             foodAlgo.simulatedAnnealingAlgorithm();
+
         } catch (InsufficientCaloriesForHamperException e) {
             System.out.println(e);
         }

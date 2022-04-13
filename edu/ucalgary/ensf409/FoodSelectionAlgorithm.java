@@ -20,8 +20,6 @@ public class FoodSelectionAlgorithm {
                                // algo
     private ArrayList<Food> newAllFood; // for comparison in algorithm
 
-    
-
     FoodSelectionAlgorithm(ArrayList<Integer> hamperClientsByType, ArrayList<Food> allFood,
             ArrayList<ClientTypes> clientRequirementsByType) throws InsufficientCaloriesForHamperException {
         this.hamperClientsByType = hamperClientsByType;
@@ -31,8 +29,12 @@ public class FoodSelectionAlgorithm {
         this.maxCalories = sumArrayList(
                 this.maxCaloriesInEachCategory);
         this.excessCaloriesMin = maxCalories;
-        if (this.maxCalories < sumArrayList(this.calorieTargetsForEachCategory)){
-            throw new InsufficientCaloriesForHamperException("not enough calories to meet requirements");
+
+        // check if there's enough calories to meet the requirements of each category
+        for (int i = 0; i < 4; i++) {
+            if (this.maxCaloriesInEachCategory.get(i) < this.calorieTargetsForEachCategory.get(i)) {
+                throw new InsufficientCaloriesForHamperException("not enough calories to meet requirements");
+            }
         }
         // this.excessCaloriesMax = this.maxCalories
         // - sumArrayList(this.calorieTargetsForEachCategory);
@@ -46,10 +48,10 @@ public class FoodSelectionAlgorithm {
         // internal struggle: does this algorithm use just simple arraylist ints or
         // actual hampers
         double temp = 100000.0; // starting temperature
-        double cool = 0.999999; // how fast it cools
-        double min_temp = 0.0000001; // when to exit loop
+        double cool = 0.99999; // how fast it cools
+        double min_temp = 0.000001; // when to exit loop (how many iterations at a low temp)
         int new_cost;
-        int current_cost;
+        int current_cost; 
 
         Hamper currentSolution = new Hamper();
         for (Food food : this.allFood) {
@@ -90,18 +92,18 @@ public class FoodSelectionAlgorithm {
             // # decrease the temperature
             temp = temp * cool;
         }
-        System.out.println("final hamper size: " + String.valueOf(currentSolution.getHamperFood().size()));
+        // System.out.println("final hamper size: " + String.valueOf(this.bestHamper.getHamperFood().size()));
         System.out.println("final calories wasted total:");
-        System.out.println(costf(currentSolution));
-        System.out.println("final calories wasted best:");
         System.out.println(costf(this.bestHamper));
-        System.out.println(this.excessCaloriesMin);
-        System.out.println(check_valid(this.bestHamper));
-        System.out.println("final calories wasted by category:");
-        System.out.println(costByCategory(currentSolution));
-        System.out.println("targets");
-        System.out.println(calorieTargetsForEachCategory);
-        return currentSolution;
+        // System.out.println("final calories wasted best:");
+        // System.out.println(costf(this.bestHamper));
+        // System.out.println(this.excessCaloriesMin);
+        // System.out.println(check_valid(this.bestHamper));
+        // System.out.println("final calories wasted by category:");
+        // System.out.println(costByCategory(this.bestHamper));
+        // System.out.println("targets");
+        // System.out.println(calorieTargetsForEachCategory);
+        return this.bestHamper;
     }
 
     private int costf(Hamper solution) {
@@ -127,20 +129,20 @@ public class FoodSelectionAlgorithm {
     private ArrayList<Integer> costByCategory(Hamper solution) {
         // cost function for annealing, which is equal to excess calories that are
         // wasted above target. simulated annealing tries to minimize the cost function.
-        
+
         int cost = this.maxCalories;
         // if not valid return max calories
         if (!check_valid(solution)) {
             cost = this.maxCalories;
             return new ArrayList<Integer>(Arrays.asList(cost, cost, cost, cost));
         }
-        ArrayList<Integer> wasteArray = new ArrayList<Integer>(Arrays.asList(0,0,0,0));
-        
+        ArrayList<Integer> wasteArray = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0));
+
         ArrayList<Integer> foodCaloriesByCategory = new ArrayList<Integer>(
                 Arrays.asList(solution.getTotWholeGrainsInHamper(), solution.getTotFruitVeggiesInHamper(),
                         solution.getTotProteinInHamper(), solution.getTotOtherInHamper()));
         for (int i = 0; i < 4; i++) {
-            wasteArray.set(i,foodCaloriesByCategory.get(i) - calorieTargetsForEachCategory.get(i));
+            wasteArray.set(i, foodCaloriesByCategory.get(i) - calorieTargetsForEachCategory.get(i));
         }
         return wasteArray;
     }

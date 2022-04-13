@@ -8,12 +8,12 @@ import java.util.*;
 public class FoodBankManagementTest {
     @Test
     public void HamperCreatorAccessesDB() {
-                
+
     }
-    
+
     @Test
     public void FoodSelectionAlgorithmOneMaleTest() {
-        ArrayList<Integer> hamperClientsByType = new ArrayList<Integer>(Arrays.asList(1,0,0,0));
+        ArrayList<Integer> hamperClientsByType = new ArrayList<Integer>(Arrays.asList(1, 0, 0, 0));
 
         Food food1 = new Food("testfood1", 30, 30, 30, 10, 9996);
         Food food2 = new Food("testfood2", 30, 30, 30, 10, 20000);
@@ -34,8 +34,14 @@ public class FoodBankManagementTest {
         allFood.add(food3);
         allFood.add(food4);
         allFood.add(food5);
-        FoodSelectionAlgorithm foodAlg = new FoodSelectionAlgorithm(hamperClientsByType, allFood, clientRequirementsByType);
-        Hamper h = foodAlg.simulatedAnnealingAlgorithm();
+        try {
+            FoodSelectionAlgorithm foodAlg = new FoodSelectionAlgorithm(hamperClientsByType, allFood,
+                    clientRequirementsByType);
+            Hamper h = foodAlg.simulatedAnnealingAlgorithm();
+        } catch (InsufficientCaloriesForHamperException e) {
+            // TODO: handle exception
+        }
+
         // System.out.println(h.getHamperFood().size());
     }
 

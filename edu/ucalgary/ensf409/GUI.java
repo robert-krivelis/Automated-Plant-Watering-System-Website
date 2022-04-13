@@ -60,8 +60,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         this.repaint();
 
         // DO WORK HERE
+        
         FoodBankManager manager = new FoodBankManager(this.allClientTypesFromUser);
-       
         manager.useAlgorithm();
         // END OF WORK
 
@@ -293,11 +293,12 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
                     atLeastOneClient = true;
                 }
             }
-            if (!atLeastOneClient) {
-                String errMsg = "Must have at least one client in hamper";
-                JOptionPane.showMessageDialog(this, errMsg);
-                return false;
-            }
+            
+        }
+        if (!atLeastOneClient) {
+            String errMsg = "Must have at least one client in hamper";
+            JOptionPane.showMessageDialog(this, errMsg);
+            return false;
         }
         return true;
     }
