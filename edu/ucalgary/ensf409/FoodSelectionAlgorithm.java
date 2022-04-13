@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FoodSelectionAlgorithm {
-    private Hamper hamper = new Hamper();
+    // private Hamper hamper = new Hamper();
     private ArrayList<Integer> hamperClientsByType; // we only need one
     private ArrayList<Food> allFood;
 
@@ -15,7 +15,8 @@ public class FoodSelectionAlgorithm {
     private int excessCaloriesMax; // calories in all food - targets
     private int maxCalories; // calories in all food
     private int excessCaloriesMin; // how few calories over excess - will change due to algo
-    private ArrayList<ArrayList<Integer>> bestHamper; // best hamper found (fewest excess cals) - will change due to algo
+    private ArrayList<ArrayList<Integer>> bestHamper; // best hamper found (fewest excess cals) - will change due to
+                                                      // algo
 
     private ArrayList<ArrayList<Integer>> allFoodSimpleArray;
 
@@ -29,7 +30,7 @@ public class FoodSelectionAlgorithm {
                 this.maxCaloriesInEachCategory);
         this.excessCaloriesMax = this.maxCalories
                 - sumArrayList(this.calorieTargetsForEachCategory);
-        this.allFoodSimpleArray = foodArrayToCaloriesArray(this.allFood); 
+        // this.allFoodSimpleArray = foodArrayToCaloriesArray(this.allFood);
 
     }
 
@@ -42,15 +43,19 @@ public class FoodSelectionAlgorithm {
         double COOL = 0.999;
         double MIN_TEMP = 0.01;
 
-        ArrayList<ArrayList<Integer>> currentSolution = this.allFoodSimpleArray;
-        ArrayList<ArrayList<Integer>> newSolution;
+        Hamper currentSolution = new Hamper();
+        for (Food food : this.allFood) {
+            currentSolution.addFood(food);
+        }
+        Hamper newSolution = new Hamper(currentSolution.getHamperFood());
         // keep track of best solution so far
         // this.bestHamper = (ArrayList<Integer>) currentSolution.clone();
         this.bestHamper = currentSolution;
-        for (ArrayList<Integer>foodSimpleArray: currentSolution)  // adjust available food according to what was added to the hamper
+        for (ArrayList<Integer> foodSimpleArray : currentSolution) // adjust available food according to what was added
+                                                                   // to the hamper
             this.allFoodSimpleArray.remove(foodSimpleArray);
 
-        while(TEMP > MIN_TEMP){
+        while (TEMP > MIN_TEMP) {
 
         }
     }

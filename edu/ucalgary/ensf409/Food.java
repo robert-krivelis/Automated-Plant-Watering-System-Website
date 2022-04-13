@@ -22,6 +22,10 @@ public class Food {
         this.calories = iniCalories;
     }
 
+    // public Object clone() throws CloneNotSupportedException {
+    //     return new Food(this.name, this.grainContent, this.fvContent, this.proContent,this.other,this.calories);
+    // }
+
     // format food data
     public String formatFoodData() {
         return this.name + "\n(whole grains: " + this.getWholeGrains() + ", fruit veggies: " + this.getFruitVeggies()

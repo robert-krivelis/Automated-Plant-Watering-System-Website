@@ -20,8 +20,8 @@ public class FoodBankManagementTest {
         Food food3 = new Food("testfood3", 30, 30, 30, 10, 30000);
         ArrayList<Food> allFood = new ArrayList<Food>();
         ArrayList<ClientTypes> clientRequirementsByType = new ArrayList<ClientTypes>();
-        ClientTypes client1 = new ClientTypes("male", 30, 30, 30, 10, 9996);
-        // add four times for each type of client
+        ClientTypes client1 = new ClientTypes("male", 30, 30, 30, 10, 1428);
+        // add four times(once for each type of client there should be)
         clientRequirementsByType.add(client1);
         clientRequirementsByType.add(client1);
         clientRequirementsByType.add(client1);
