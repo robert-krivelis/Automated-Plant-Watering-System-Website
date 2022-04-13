@@ -16,6 +16,7 @@ public class FoodInventoryDatabaseAccess {
     public FoodInventoryDatabaseAccess() {
         initializeConnection();
         selectAllClientTypes();
+        selectAllFoodData();
         close();
     }
 

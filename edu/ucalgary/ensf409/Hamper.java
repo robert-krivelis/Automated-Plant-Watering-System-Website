@@ -16,7 +16,10 @@ public class Hamper {
     }
 
     public Hamper(ArrayList<Food> hamperFood) { // for cloning the hamper
-        this.hamperFood = hamperFood;
+        for (Food food: hamperFood){
+            this.addFood(food);
+        }
+        
     }
 
     // @Override
@@ -51,11 +54,11 @@ public class Hamper {
 
     public void removeFood(Food removedFood) {
         hamperFood.remove(removedFood);
-        totWholeGrainsInHamper += removedFood.getWholeGrains();
-        totFruitVeggiesInHamper += removedFood.getFruitVeggies();
-        totProteinInHamper += removedFood.getProtein();
-        totOtherInHamper += removedFood.getOther();
-        totCaloriesInHamper += removedFood.getCalories();
+        totWholeGrainsInHamper -= removedFood.getWholeGrains();
+        totFruitVeggiesInHamper -= removedFood.getFruitVeggies();
+        totProteinInHamper -= removedFood.getProtein();
+        totOtherInHamper -= removedFood.getOther();
+        totCaloriesInHamper -= removedFood.getCalories();
 
     }
 

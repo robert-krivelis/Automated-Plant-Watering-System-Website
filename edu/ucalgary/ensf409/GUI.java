@@ -61,6 +61,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
 
         // DO WORK HERE
         FoodBankManager manager = new FoodBankManager(this.allClientTypesFromUser);
+       
+        manager.useAlgorithm();
         // END OF WORK
 
         JOptionPane.showMessageDialog(this, "Order Complete! Press OK to make additional orders.");
