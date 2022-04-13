@@ -6,11 +6,14 @@ import java.util.Arrays;
 public class FoodBankManager {
     private ArrayList<ArrayList<Integer>> allClientTypesFromUser;
     private ArrayList<Food> allFood;
+    private ArrayList<ClientTypes> clientRequirementsByType;
+
     public FoodBankManager(ArrayList<ArrayList<Integer>> allClientTypesFromUser) {
         // on intialization get food from DB and set users 
         this.allClientTypesFromUser = allClientTypesFromUser;
         FoodInventoryDatabaseAccess foodDB = new FoodInventoryDatabaseAccess();
         this.allFood = foodDB.getAllFood();
+        this.clientRequirementsByType = foodDB.getClientRequirementsByType();
     }
 
     public void generateOrder() {
@@ -22,6 +25,8 @@ public class FoodBankManager {
                     hamperClients.get(1),
                     hamperClients.get(2),
                     hamperClients.get(3)); // Order: AdultM AdultF ChildO8 ChildU8
+                // somewhere there's going to be a call
+                // to food selection algorithm. but not today :) 
                 System.out.println(createdHamper.getTotCalories());
                 System.out.println(createdHamper.getMinExcessCalories());
             } catch (InsufficientCaloriesForHamperException e) {

@@ -7,7 +7,7 @@ public class Hamper {
     // food in hamper
     private ArrayList<Food> hamperFood = new ArrayList<Food>();
     // calories in hamper
-    private int totWholeGrainsInHamper = 0;
+    private int totWholeGrainsInHamper = 0;  
     private int totFruitVeggiesInHamper = 0;
     private int totProteinInHamper = 0;		
 	private int totOtherInHamper = 0;
