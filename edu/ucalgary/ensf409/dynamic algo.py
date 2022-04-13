@@ -176,19 +176,19 @@ class HamperSolver:
                           ('Granola cereal', 60, 0, 19, 21, 1260),
                           ('Black fungus, 200 g', 0, 77, 23, 0, 564)]
         # Initialize available food
-        self.available_food = []
+        self.allFood = []
         # Add food to available food
         # Convert items to calories. so ('Black fungus, 200 g', 0, 77, 23, 0, 564) becomes [0.0, 434.28, 129.72, 0.0]
         for item in self.item_list:
             cal_converted_item = [
                 percent * item[5] / 100 for percent in item[1:5]
             ]
-            self.available_food.append(cal_converted_item)
+            self.allFood.append(cal_converted_item)
 
         self.max_cals_by_category = []
         for i in range(4):
             self.max_cals_by_category.append(
-                sum([food[i] for food in self.available_food]))
+                sum([food[i] for food in self.allFood]))
         self.max_cals = sum(self.max_cals_by_category)
 
         self.foodTargetsByCategory = [
@@ -201,7 +201,7 @@ class HamperSolver:
             self.foodTargetsByCategory)
 
         self.excessCaloriesMin = self.max_cals  # will change with annealing
-        self.best_sol = self.available_food.copy()  # will change with annealing
+        self.best_sol = self.allFood.copy()  # will change with annealing
 
     def simulated_annealing(
         self,
@@ -223,12 +223,12 @@ class HamperSolver:
         #     if random.randint(0, 100) <= item_percentage_roughly
         # ]
 
-        currentSolution = self.available_food.copy()
+        currentSolution = self.allFood.copy()
         # keep track of best solution so far
         self.best_sol = currentSolution.copy()
 
         for food in currentSolution:  # adjust available food according to what was added to the hamper
-            self.available_food.remove(food)
+            self.allFood.remove(food)
 
         # print(' hamper len', len(current_sol))
         # print('starting food len', len(self.available_food))
@@ -237,7 +237,7 @@ class HamperSolver:
 
         while temp > min_temp:
             # change the existing solution slightly
-            newSolution, newFoodSimpleArray = self.neighbor(
+            newSolution, newFood = self.neighbor(
                 currentSolution.copy())
 
             # calculate the current cost and the new cost
@@ -250,7 +250,7 @@ class HamperSolver:
             # is it better, or does it make the probability cutoff?
             if (new_cost < current_cost or random.random() < p):
                 currentSolution = newSolution.copy()
-                self.available_food = newFoodSimpleArray.copy()
+                self.allFood = newFood.copy()
                 # print('new cost', new_cost)
 
             # my code for calculating best so far
@@ -284,59 +284,59 @@ class HamperSolver:
             waste += sum(calsOfCategory) - self.foodTargetsByCategory[i]
         return waste
 
-    def neighbor(self, current_sol):
+    def neighbor(self, currentSolution):
         # change the current solution slightly, by swapping food between hamper and available food or adding/removing food to hamper/all_food.
         # 50% chance to swap items, 50% chance to simply add or remove an item
-        new_sol = current_sol.copy()
-        new_available_food = self.available_food.copy()
+        newSolution = currentSolution.copy()
+        newAllFood = self.allFood.copy()
 
         # flip a coin to see whether to swap items
         swap = bool(random.randint(0, 1))
-        if len(new_sol) == 0 or len(new_available_food) == 0:
+        if len(newSolution) == 0 or len(newAllFood) == 0:
             swap = False
         if swap:
             # select random foods to swap
-            i = random.randint(0, len(new_available_food) - 1)
-            food1 = new_available_food[i]
-            j = random.randint(0, len(new_sol) - 1)
-            food2 = new_sol[j]
+            i = random.randint(0, len(newAllFood) - 1)
+            food1 = newAllFood[i]
+            j = random.randint(0, len(newSolution) - 1)
+            food2 = newSolution[j]
 
             # swap foods
-            new_sol.append(food1)
-            new_available_food.remove(food1)
-            new_sol.remove(food2)
-            new_available_food.append(food2)
+            newSolution.append(food1)
+            newAllFood.remove(food1)
+            newSolution.remove(food2)
+            newAllFood.append(food2)
         else:
             add = bool(random.randint(0, 1))
 
             # check for edge cases where hamper or available food is empty
-            if (len(new_sol) == 0
+            if (len(newSolution) == 0
                 ):  # if current_hamper is empty must add food to hamper
                 add = True
             elif len(
-                    new_available_food
+                    newAllFood
             ) == 0:  # if available_food is empty must remove food from hamper
                 add = False
 
             # if coinflip succeeds add to current
             if add:
                 # select random food to add to hamper
-                i = random.randint(0, len(new_available_food) - 1)
-                food = new_available_food[i]
+                i = random.randint(0, len(newAllFood) - 1)
+                food = newAllFood[i]
 
                 # add food to hamper and remove it from available food
-                new_sol.append(food)
-                new_available_food.remove(food)
+                newSolution.append(food)
+                newAllFood.remove(food)
             # if coinflip fails remove from current
             else:
                 # select random food to remove from hamper
-                i = random.randint(0, len(new_sol) - 1)
-                food = new_sol[i]
+                i = random.randint(0, len(newSolution) - 1)
+                food = newSolution[i]
 
                 # remove food to hamper and add it to available food
-                new_available_food.append(food)
-                new_sol.remove(food)
-        return new_sol.copy(), new_available_food.copy()
+                newAllFood.append(food)
+                newSolution.remove(food)
+        return newSolution.copy(), newAllFood.copy()
 
 
 sols=[]

@@ -1,6 +1,6 @@
 package edu.ucalgary.ensf409;
 
-public class Food {
+public class Food{
     // contains information about a food item
     private String name;
     // percent of each catagory

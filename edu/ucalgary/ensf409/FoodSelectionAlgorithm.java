@@ -3,6 +3,7 @@ package edu.ucalgary.ensf409;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FoodSelectionAlgorithm {
     // private Hamper hamper = new Hamper();
@@ -15,8 +16,9 @@ public class FoodSelectionAlgorithm {
     private int excessCaloriesMax; // calories in all food - targets
     private int maxCalories; // calories in all food
     private int excessCaloriesMin; // how few calories over excess - will change due to algo
-    private ArrayList<ArrayList<Integer>> bestHamper; // best hamper found (fewest excess cals) - will change due to
-                                                      // algo
+    private Hamper bestHamper; // best hamper found (fewest excess cals) - will change due to
+                               // algo
+    private ArrayList<Food> newAllFood; // for comparison in algorithm
 
     private ArrayList<ArrayList<Integer>> allFoodSimpleArray;
 
@@ -39,9 +41,11 @@ public class FoodSelectionAlgorithm {
         // algorithm search parameters
         // internal struggle: does this algorithm use just simple arraylist ints or
         // actual hampers
-        double TEMP = 10000;
-        double COOL = 0.999;
-        double MIN_TEMP = 0.01;
+        double temp = 10000; // starting temperature 
+        double cool = 0.999; // how fast it cools
+        double min_temp = 0.01; // when to exit loop
+        int new_cost;
+        int current_cost;
 
         Hamper currentSolution = new Hamper();
         for (Food food : this.allFood) {
@@ -51,13 +55,143 @@ public class FoodSelectionAlgorithm {
         // keep track of best solution so far
         // this.bestHamper = (ArrayList<Integer>) currentSolution.clone();
         this.bestHamper = currentSolution;
-        for (ArrayList<Integer> foodSimpleArray : currentSolution) // adjust available food according to what was added
-                                                                   // to the hamper
-            this.allFoodSimpleArray.remove(foodSimpleArray);
+        // adjust available food according to what was added to the hamper
+        for (Food food : currentSolution.getHamperFood())
+            this.allFood.remove(food);
 
-        while (TEMP > MIN_TEMP) {
+        
+        while (temp > min_temp) {
+            // change the existing solution slightly
+            newSolution = neighbor(currentSolution); // note side effect changes this.newAllFood
+            // calculate the current cost and the new cost
+            new_cost = costf(newSolution);
+            current_cost = costf(currentSolution);
+
+            // calculate probability cutoff
+            double p = Math.pow(Math.E, (-new_cost - current_cost) / temp);
+
+            // is it better, or does it make the probability cutoff?
+            if (new_cost < current_cost || Math.random() < p)
+            {
+                // replace current solution with new solution
+                currentSolution = new Hamper(cloneFoodArray(newSolution.getHamperFood()));
+                this.allFood = cloneFoodArray(this.newAllFood);
+                System.out.println("new cost", new_cost);
+            }
+        }
+    }
+
+    private int costf(Hamper solution) {
+        // cost function for annealing, which is equal to excess calories that are
+        // wasted above target. simulated annealing tries to minimize the cost function.
+
+        int cost = this.maxCalories;
+        // if not valid return max calories
+        if (!check_valid(solution)) {
+            cost = this.maxCalories;
+            return cost;
+        }
+        int waste = 0;
+        ArrayList<Integer> foodCaloriesByCategory = new ArrayList<Integer>(
+                Arrays.asList(solution.getTotWholeGrainsInHamper(), solution.getTotFruitVeggiesInHamper(),
+                        solution.getTotProteinInHamper(), solution.getTotOtherInHamper()));
+        for (int i = 0; i < 4; i++) {
+            waste += foodCaloriesByCategory.get(i) - calorieTargetsForEachCategory.get(i);
+        }
+        return waste;
+    }
+
+    private boolean check_valid(Hamper solution) {
+        ArrayList<Integer> foodCaloriesByCategory = new ArrayList<Integer>(
+                Arrays.asList(solution.getTotWholeGrainsInHamper(), solution.getTotFruitVeggiesInHamper(),
+                        solution.getTotProteinInHamper(), solution.getTotOtherInHamper()));
+
+        // for each category (grain, veg, prot, other) see if it's valid (all categories
+        // met)
+        for (int i = 0; i < 4; i++) {
+            if (foodCaloriesByCategory.get(i) < calorieTargetsForEachCategory.get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Hamper neighbor(Hamper currentSolution) {
+        /*
+         * change the current solution slightly, by swapping food between hamper and
+         * available food or adding/removing food to hamper/all_food.
+         * 50% chance to swap items, 50% chance to simply add or remove an item
+         */
+        Hamper newSolution = new Hamper(currentSolution.getHamperFood()); // copy current solution
+        this.newAllFood = cloneFoodArray(this.allFood);
+
+        // * # flip a coin to see whether to swap items
+        // * swap = bool(random.randint(0, 1))
+        boolean swap;
+        int randomNum = ThreadLocalRandom.current().nextInt(0, 1 + 1); // get either 0 or 1
+        if (randomNum == 1) {
+            swap = true;
+        } else {
+            swap = false;
+        }
+        // * if len(newSolution) == 0 or len(newAllFood) == 0:
+        if (newSolution.getHamperFood().size() == 0 || this.newAllFood.size() == 0) {
+        }
+        // * swap = False
+        swap = false;
+        // * if swap:
+        if (swap) {
+            // * # select random foods to swap
+            int i = ThreadLocalRandom.current().nextInt(0, this.newAllFood.size());
+            Food food1 = this.newAllFood.get(i);
+            int j = ThreadLocalRandom.current().nextInt(0, newSolution.getHamperFood().size());
+            Food food2 = newSolution.getHamperFood().get(j);
+
+            // * # swap foods
+            newSolution.addFood(food1);
+            this.newAllFood.remove(food1);
+            newSolution.removeFood(food2);
+            this.newAllFood.add(food2);
+
+        } else {
+            boolean add;
+            int randomNum2 = ThreadLocalRandom.current().nextInt(0, 1 + 1); // get either 0 or 1
+            if (randomNum2 == 1) {
+                add = true;
+            } else {
+                add = false;
+            }
+            // * check for edge cases where hamper or available food is empty
+            if (newSolution.getHamperFood().size() == 0) {
+                // if current_hamper is empty must add food to hamper
+                add = true;
+            } else if (this.newAllFood.size() == 0) {
+                // if available_food is empty must remove food from hamper
+                add = false;
+            }
+            // if coinflip succeeds add to current
+            if (add) {
+                // select random food to add to hamper
+                int i = ThreadLocalRandom.current().nextInt(0, this.newAllFood.size());
+                Food food = this.newAllFood.get(i);
+
+                // add food to hamper and remove it from available food
+                newSolution.addFood(food);
+                this.newAllFood.remove(food);
+            }
+            // if coinflip fails remove from current
+            else {
+                // select random food to remove from hamper
+                int i = ThreadLocalRandom.current().nextInt(0, newSolution.getHamperFood().size());
+                Food food = newSolution.getHamperFood().get(i);
+
+                // add food to hamper and remove it from available food
+                newSolution.removeFood(food);
+                this.newAllFood.add(food);
+            }
 
         }
+        return newSolution;
     }
 
     private ArrayList<Integer> calculateMaxCaloriesInEachCategory() {
@@ -76,6 +210,15 @@ public class FoodSelectionAlgorithm {
         for (Integer val : arr)
             sum += val;
         return sum;
+    }
+
+    private ArrayList<Food> cloneFoodArray(ArrayList<Food> arr) {
+        ArrayList<Food> clone = new ArrayList<Food>();
+        for (Food f : arr)
+            clone.add(new Food(f.getName(), f.getWholeGrainsPer(), f.getFruitVeggiesPer(), f.getProteinPer(),
+                    f.getOtherPer(), f.getCalories()));
+
+        return clone;
     }
 
     private ArrayList<ArrayList<Integer>> foodArrayToCaloriesArray(ArrayList<Food> foodArray) {
