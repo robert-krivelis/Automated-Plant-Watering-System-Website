@@ -11,8 +11,7 @@ public class HamperCreator {
     private int childOverEight;
     private int childUnderEight;
     // database access
-    private FoodInventoryDatabaseAccess foodInventoryAccess = new FoodInventoryDatabaseAccess(
-            "jdbc:mysql://localhost/food_inventory", "student", "ensf409");
+    private FoodInventoryDatabaseAccess foodInventoryAccess = new FoodInventoryDatabaseAccess();
     // days required for hamper to provode for
     private int numOfDays = 7;
     // calorie requirements per category for the client group
@@ -24,7 +23,7 @@ public class HamperCreator {
     // client type information (index 0 for adult male, 1 for adult female, 2 for
     // child
     // over 8, 3 for child under 8)
-    private ArrayList<ClientTypes> theClientTypes = new ArrayList<ClientTypes>();
+    private ArrayList<ClientTypes> clientRequirementsByType = new ArrayList<ClientTypes>();
     // all food from the database
     public static ArrayList<Food> availableFood = new ArrayList<Food>();
     // hamper
@@ -43,33 +42,33 @@ public class HamperCreator {
 
         foodInventoryAccess.initializeConnection();
         foodInventoryAccess.selectAllClientTypes();
-        theClientTypes = foodInventoryAccess.getTheClientTypes();
+        clientRequirementsByType = foodInventoryAccess.getClientRequirementsByType();
         foodInventoryAccess.close();
 
         // needed whole grains
-        totWholeGrains += theClientTypes.get(0).getWholeGrains() * adultMales
-                + theClientTypes.get(1).getWholeGrains() * adultFemales
-                + theClientTypes.get(2).getWholeGrains() * childOverEight
-                + theClientTypes.get(3).getWholeGrains() * childUnderEight;
+        totWholeGrains += clientRequirementsByType.get(0).getWholeGrains() * adultMales
+                + clientRequirementsByType.get(1).getWholeGrains() * adultFemales
+                + clientRequirementsByType.get(2).getWholeGrains() * childOverEight
+                + clientRequirementsByType.get(3).getWholeGrains() * childUnderEight;
         // needed fruit veggies
-        totFruitVeggies += theClientTypes.get(0).getFruitVeggies() * adultMales
-                + theClientTypes.get(1).getFruitVeggies() * adultFemales
-                + theClientTypes.get(2).getFruitVeggies() * childOverEight
-                + theClientTypes.get(3).getFruitVeggies() * childUnderEight;
+        totFruitVeggies += clientRequirementsByType.get(0).getFruitVeggies() * adultMales
+                + clientRequirementsByType.get(1).getFruitVeggies() * adultFemales
+                + clientRequirementsByType.get(2).getFruitVeggies() * childOverEight
+                + clientRequirementsByType.get(3).getFruitVeggies() * childUnderEight;
         // needed protein
-        totProtein += theClientTypes.get(0).getProtein() * adultMales
-                + theClientTypes.get(1).getProtein() * adultFemales
-                + theClientTypes.get(2).getProtein() * childOverEight
-                + theClientTypes.get(3).getProtein() * childUnderEight;
+        totProtein += clientRequirementsByType.get(0).getProtein() * adultMales
+                + clientRequirementsByType.get(1).getProtein() * adultFemales
+                + clientRequirementsByType.get(2).getProtein() * childOverEight
+                + clientRequirementsByType.get(3).getProtein() * childUnderEight;
         // needed other
-        totOther += theClientTypes.get(0).getOther() * adultMales + theClientTypes.get(1).getOther() * adultFemales
-                + theClientTypes.get(2).getOther() * childOverEight
-                + theClientTypes.get(3).getOther() * childUnderEight;
+        totOther += clientRequirementsByType.get(0).getOther() * adultMales + clientRequirementsByType.get(1).getOther() * adultFemales
+                + clientRequirementsByType.get(2).getOther() * childOverEight
+                + clientRequirementsByType.get(3).getOther() * childUnderEight;
         // needed total calories
-        totCalories += theClientTypes.get(0).getCalories() * adultMales
-                + theClientTypes.get(1).getCalories() * adultFemales
-                + theClientTypes.get(2).getCalories() * childOverEight
-                + theClientTypes.get(3).getCalories() * childUnderEight;
+        totCalories += clientRequirementsByType.get(0).getCalories() * adultMales
+                + clientRequirementsByType.get(1).getCalories() * adultFemales
+                + clientRequirementsByType.get(2).getCalories() * childOverEight
+                + clientRequirementsByType.get(3).getCalories() * childUnderEight;
 
         totWholeGrains = totWholeGrains * numOfDays;
         totFruitVeggies = totFruitVeggies * numOfDays;
@@ -80,7 +79,7 @@ public class HamperCreator {
         // add all food to availableFood
         foodInventoryAccess.initializeConnection();
         foodInventoryAccess.selectAllFoodData();
-        availableFood = foodInventoryAccess.getTheFood();
+        availableFood = foodInventoryAccess.getAllFood();
         foodInventoryAccess.close();
 
         this.availableFoodIndexes = IntStream.range(0, availableFood.size()).boxed().collect(Collectors.toList())
@@ -239,8 +238,8 @@ public class HamperCreator {
     // returns string of client needs from the database
     public String formattedClientTypesList() {
         String temp = "";
-        for (int i = 0; i < theClientTypes.size(); i++) {
-            temp += theClientTypes.get(i).formatClientTypeData() + "\n";
+        for (int i = 0; i < clientRequirementsByType.size(); i++) {
+            temp += clientRequirementsByType.get(i).formatClientTypeData() + "\n";
         }
         return temp;
     }

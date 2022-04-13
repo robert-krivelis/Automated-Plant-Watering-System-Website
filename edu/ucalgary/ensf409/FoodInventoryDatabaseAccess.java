@@ -4,24 +4,19 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class FoodInventoryDatabaseAccess {
-    public final String DBURL;
-    public final String USERNAME;
-    public final String PASSWORD;
+    public final String DBURL = "jdbc:mysql://localhost/food_inventory";
+    public final String USERNAME = "student";
+    public final String PASSWORD = "ensf409";
 
     private Connection dbConnect;
     private ResultSet results;
-    private ArrayList<ClientTypes> theClientTypes = new ArrayList<ClientTypes>(); 
+    private ArrayList<ClientTypes> clientRequirementsByType = new ArrayList<ClientTypes>();
     private ArrayList<Food> theFood = new ArrayList<Food>();
 
-    public FoodInventoryDatabaseAccess(String url, String user, String pw) {
-
-        // Database URL
-        this.DBURL = url;
-
-        // Database credentials
-        this.USERNAME = user;
-        this.PASSWORD = pw;
-
+    public FoodInventoryDatabaseAccess() {
+        initializeConnection();
+        selectAllClientTypes();
+        close();
     }
 
     public void initializeConnection() {
@@ -42,7 +37,7 @@ public class FoodInventoryDatabaseAccess {
             results = myStmt.executeQuery("SELECT * FROM DAILY_CLIENT_NEEDS");
 
             while (results.next()) {
-                theClientTypes.add(new ClientTypes(results.getString("Client"), results.getInt("WholeGrains"),
+                clientRequirementsByType.add(new ClientTypes(results.getString("Client"), results.getInt("WholeGrains"),
                         results.getInt("FruitVeggies"), results.getInt("Protein"), results.getInt("Other"),
                         results.getInt("Calories")));
             }
@@ -54,8 +49,8 @@ public class FoodInventoryDatabaseAccess {
     }
 
     // get array list of client needs objects
-    public ArrayList<ClientTypes> getTheClientTypes() {
-        return theClientTypes;
+    public ArrayList<ClientTypes> getClientRequirementsByType() {
+        return clientRequirementsByType;
     }
 
     // gets food from the database
@@ -77,7 +72,7 @@ public class FoodInventoryDatabaseAccess {
     }
 
     // get array list of food objects
-    public ArrayList<Food> getTheFood() {
+    public ArrayList<Food> getAllFood() {
         return theFood;
     }
 

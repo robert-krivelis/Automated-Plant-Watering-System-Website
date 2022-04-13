@@ -5,19 +5,23 @@ import java.util.Arrays;
 
 public class FoodBankManager {
     private ArrayList<ArrayList<Integer>> allClientTypesFromUser;
-
+    private ArrayList<Food> allFood;
     public FoodBankManager(ArrayList<ArrayList<Integer>> allClientTypesFromUser) {
+        // on intialization get food from DB and set users 
         this.allClientTypesFromUser = allClientTypesFromUser;
+        FoodInventoryDatabaseAccess foodDB = new FoodInventoryDatabaseAccess();
+        this.allFood = foodDB.getAllFood();
     }
 
     public void generateOrder() {
         for (ArrayList<Integer> hamperClients : this.allClientTypesFromUser) {
             try {
+                // hamperCreator only does one at a time. FoodBankManager creates multiple hampers.
                 HamperCreator createdHamper = new HamperCreator(
                     hamperClients.get(0),
                     hamperClients.get(1),
                     hamperClients.get(2),
-                    hamperClients.get(3)); // AM AF CO8 CU8
+                    hamperClients.get(3)); // Order: AdultM AdultF ChildO8 ChildU8
                 System.out.println(createdHamper.getTotCalories());
                 System.out.println(createdHamper.getMinExcessCalories());
             } catch (InsufficientCaloriesForHamperException e) {
