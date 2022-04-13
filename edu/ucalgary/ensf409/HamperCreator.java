@@ -34,7 +34,8 @@ public class HamperCreator {
     private ArrayList<Integer[]> possibleFoodCombinations;
     private Integer[] availableFoodIndexes;
 
-    public HamperCreator(int adultMales, int adultFemales, int childOverEight, int childUnderEight) {
+    public HamperCreator(int adultMales, int adultFemales, int childOverEight, int childUnderEight) 
+            throws InsufficientCaloriesForHamperException {
         this.adultMales = adultMales;
         this.adultFemales = adultFemales;
         this.childOverEight = childOverEight;

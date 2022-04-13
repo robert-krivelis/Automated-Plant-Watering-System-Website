@@ -1,4 +1,3 @@
-from inspect import Parameter
 import random
 import math
 
@@ -340,31 +339,16 @@ class HamperSolver:
         return new_sol.copy(), new_available_food.copy()
 
 
-def func():
-    return 1
-# loop in python is slow, this is going to be fast in java i think.
-
-
 sols=[]
 sol_waste=[]
+
 for i in range(20):
     hamper = HamperSolver()
     best = hamper.simulated_annealing(cool=0.999, min_temp=0.0001)
     print(hamper.costf(best))
     sols.append(hamper.best_sol)
     sol_waste.append(hamper.wasted_calories_min)
+    
 best_index = sol_waste.index(min(sol_waste))
 print(min(sol_waste), best_index)
 print(sols[best_index])
-
-
-# # for i in range(3):
-# best = simulated_annealing(costf=costf, cool=0.99)
-# print("returned val:", round(costf(best_sol[0])), round(costf(best)))
-
-# # best so far around 147.8 ..
-# # print(best)
-# # print("food items:", len(best), "wasted cals:", costf(best))
-# # print( "iterations", len(coin_results))
-# # print(len([r for r in coin_results if r]) / len(coin_results))
-# # print("food items:", len(best_sol), "wasted cals:", costf(best_sol))

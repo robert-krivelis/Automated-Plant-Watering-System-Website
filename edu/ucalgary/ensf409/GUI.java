@@ -179,16 +179,15 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         this.repaint();
 
         // DO WORK HERE
-        HamperCreator(this.allClientTypesFromUser);
-
+        FoodBankManager manager = new FoodBankManager(this.allClientTypesFromUser);
+        // END OF WORK
 
         JOptionPane.showMessageDialog(this, "Order Complete! Press OK to make additional orders.");
         reset();
 
     }
 
-    private void HamperCreator(ArrayList<ArrayList<Integer>> allClientTypesFromUser2) {
-    }
+
 
     private void reset() {
         this.dispose(); // close current window
